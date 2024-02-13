@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load analytics_tags %}
+
+{% block content %}
+	<div class="row">
+        <div class="col-md-2">
+            {% include "analytics/sidebar.html" %}
+        </div>
+        <div class="col-md-10">
+            <div class="analytic-filter mb-4 mt-2">
+                с <input type="date" id="id_start_date" name="start_date"  class="btn btn-sm btn-col" value="{{ start_date }}">
+                по <input type="date" id="id_end_date" name="end_date"  class="btn btn-sm btn-col" value="{{ end_date }}">
+                <select name="customer" id="id_customer"  class="ml-2 btn btn-sm btn-col">
+                    <option value="">Выбрать пациента</option>
+                    {% for customer in customers %}
+                        {% set_data_by_compare customer customer_selected 'selected' as selected %}
+                        <option value="{{ customer.id }}" {{ selected }}>{{ customer }}</option>
+                    {% endfor %}
+                </select>
+                 <!--span class="ml-2">
+                    <button  class="btn btn-sm btn-col">Экспортировать в excel </button>
+                </span-->
+            </div>
+            <div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Прием</th>
+                          <th scope="col">Название услуги</th>
+                          <th scope="col">Количество</th>
+                          <th>Цена</th>
+                          <th>Стоимость</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if customer_selected %}
+                            {% for schedule_service in schedule_services %}
+                                <tr>
+                                  <th scope="row">1</th>
+                                  <td>{{ schedule_service.schedule.start_datetime }}</td>
+                                  <td>{{ schedule_service.service.title }}</td>
+                                  <td>{{ schedule_service.quantity }}</td>
+                                  <td>{{ schedule_service.total_price }} тг</td>
+                                  <td>{{ schedule_service.get_invoice }} тг</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block domready %}
+    $(document).on('change', '#id_start_date, #id_end_date', function(){
+        set_params_url(['start_date', 'end_date'])
+    })
+
+    $(document).on('change', '#id_customer', function(){
+        var pk = $(this).val()
+        if(pk){
+            var url = "{% url 'analytics:customer' pk=0 %}".replace('0', pk)
+        }
+        else{
+            var url = "{% url 'analytics:customer' %}"
+        }
+        location.href = url
+    })
+{% endblock %}
+

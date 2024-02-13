@@ -1,0 +1,9 @@
+{% for good in goods %}
+    <p>
+    	{{good.title}}
+    	<output class="pull-right">
+    		<span class="good-storage-update" data-url="{% url 'warehouse:good_storage_update' pk=good.id %}">обновить</span> /
+	    	<span class="good-storage-delete" data-url="{% url 'warehouse:good_storage_delete' pk=good.id %}">удалить</span>
+    	</output>
+    </p>
+{% endfor %}

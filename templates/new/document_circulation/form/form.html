@@ -1,0 +1,146 @@
+{% load form_tags %}
+<form action="" method="POST" id="save_form">
+{% csrf_token %}
+<div class="card card-dashboard-one ">
+  <div class="card-header">
+    <div class="az-dashboard-nav az-dashboard-nav-forma"> 
+      <nav class="nav">
+        <button type="button" id="save-form-pdf" class="btn btn-sm btn-success">
+          <i class="fa fa-file-pdf-o"></i> &nbspСохранить pdf
+        </button>
+        &nbsp&nbsp&nbsp
+        <button type="submit" class="btn btn-sm btn-primary" style="color: white" name="status" value="3">
+          <i class="fa fa-save"></i> &nbspНезавершенная форма
+        </button>
+        {% if history %}
+          <!--button type="button" class="btn btn-sm btn-danger delete-history" data-id="{{history.id}}">-</button-->
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <table class="table_write table table-fixed table-bordered">
+      <tbody>
+        {% for rows in history.form.get_rows %}
+        <tr>
+          {% for marker in rows.get_markers %}
+          <td colspan="{{marker.colspan}}">
+            {% get_adaptivemarker marker as adaptivemarker %}
+            {%  get_history_data marker history as history_data %}
+            {% relation_create marker.id adaptivemarker.kind as relation_create %}
+            {% audio_input marker.id as audio_input %}
+            <span class="{% is_bold  marker.is_bold %}">
+              {% if adaptivemarker.label %}
+              {{adaptivemarker.label|linebreaksbr}}
+              {% else %}
+              {{marker.label|linebreaksbr}}
+              {% endif %}
+            </span>
+            {% if adaptivemarker.kind == 'text'  %}
+            <span id="{{marker.name}}" data-marker="{{marker.id}}" {{history_data.is_contenteditable}}>{{history_data.data|default_if_none:''}}</span>
+            <input type="hidden" name="{{marker.name}}" id="{{marker.id}}" value="{{history_data.data|default_if_none:''}}">
+            {{ relation_create|safe }}
+            {{ audio_input|safe }}
+            {% elif  adaptivemarker.kind == 'textarea' %}
+            <span id="{{marker.name}}" data-marker="{{marker.id}}" {{history_data.is_contenteditable}}>{{history_data.data|default_if_none:''}}</span>
+            <input type="hidden" name="{{marker.name}}" id="{{marker.id}}" value="{{history_data.data|default_if_none:''}}">
+            {{relation_create|safe}}
+            {% elif  adaptivemarker.kind == 'select' %}
+            {% json_load marker.options as options %}
+            <select name="{{marker.name}}" class="border-none">
+              {% for key, option in options.items %}
+              <option value="{% get_key key %}" {% get_selected_option key=key val=history_data.data %}>{{option}}</option>
+              {% endfor %}
+            </select>
+            {{relation_create|safe}}
+            {% elif  adaptivemarker.kind == 'parent' %}
+            {% if history_data.data %}
+            {% get_data history_data.data as data %}
+            {% else %}
+            {% get_relation_form_data customer adaptivemarker history as data %}
+            {% endif %}
+            <span {{history_data.is_contenteditable}} id="{{marker.name}}" data-marker="{{marker.id}}" >{{data}}</span>
+            <input type="hidden" name="{{marker.name}}" id="{{marker.id}}" value="{{history_data.data|default_if_none:''}}">
+            <button type="button" class="pull-right remove-relation" data-id="{{adaptivemarker.id}}">-</button>
+            {% elif  adaptivemarker.kind == 'doctor' %}
+            doctor
+            {% elif  adaptivemarker.kind == 'datalist' %}
+            {% json_load marker.options as options %}
+            <span {{history_data.is_contenteditable}} data-marker="{{marker.id}}" id="{{marker.name}}"></span>
+            <input type="hidden" id="{{marker.id}}" name="{{marker.name}}" value="{{history_data.data|default_if_none:''}}">
+            <label class="dropdown">                          
+              <label data-toggle="dropdown"><label class="caret"></label></label>            
+              <ul class="dropdown-menu">
+                {% for key, option in options.items %}
+                <li class="datalist-val" data-id="{{marker.id}}"><a href='' class="not-active">{{option}}</a></li>
+                {% endfor %}
+              </ul>
+            </label>
+            {% elif  adaptivemarker.kind == 'checkbox' %}
+            {% json_load marker.options as options %}
+            {% for key, option in options.items %}
+            <input type="checkbox" data-key="{{key}}" name="{{marker.name}}" {% is_checked option history_data.data %} {{disabled}} value="{{option|default:key}}"/>
+            {{option|default_if_none:''}}
+            {% endfor %}
+            {% elif  adaptivemarker.kind == 'radio' %}
+            {% json_load marker.options as options %}
+            {% for key, option in options.items %}
+            <input type="radio" data-key="{{key}}" name="{{marker.name}}" {% is_checked option history_data.data %} {{disabled}} value="{{option|default:key}}"/>
+            {{option|default_if_none:''}}
+            {% endfor %}
+            {% elif  adaptivemarker.kind == 'nowdate' %}
+            <input type="date" name="{{marker.name}}" id="{{marker.id}}" class="form_dater" value="{{history_data.data|default_if_none:''}}" {{disabled}}>
+            {% elif  adaptivemarker.kind == 'currentDate' %}
+            <input type="date" name="{{marker.name}}" id="{{marker.id}}" class="form_dater" value="{{history_data.data|default_if_none:''}}" {{disabled}}>
+            {% elif  adaptivemarker.kind == 'time' %}
+            <input type="time" name="{{marker.name}}" id="{{marker.id}}" class="form_time" value="{{history_data.data|default_if_none:''}}" {{disabled}}>
+            {% elif  adaptivemarker.kind == 'currentTime' %}
+            <input type="time" name="{{marker.name}}" id="{{marker.id}}" class="form_time" value="{{history_data.data|default_if_none:''}}" {{disabled}}>
+            {% elif  adaptivemarker.kind == 'mkb10' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.id}}" data-marker="{{marker.id}}" class="border-none fixed-ready_phrase" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." readonly title="Выберите из шаблона">
+            {% elif  adaptivemarker.kind == 'drugs' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="drugs border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="...........">   
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% elif  adaptivemarker.kind == 'mkb9' %}
+            <input type="text" name="{{marker.name}}" id="{{ marker.name }}" data-id="{{marker.id}}" list="{{marker.id}}" class="mkb9 border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% elif  adaptivemarker.kind == 'profile_bunk' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="profile_bunk border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >   
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% elif  adaptivemarker.kind == 'scheme_chemotherapy' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="scheme_chemotherapy border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >   
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% elif  adaptivemarker.kind == 'morphological_type' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="morphological_type border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >   
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% elif  adaptivemarker.kind == 'postoperative_complication' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="postoperative_complication border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >   
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% elif  adaptivemarker.kind == 'departments' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="departments border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >   
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% elif  adaptivemarker.kind == 'doctors' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="doctors border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >   
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% elif  adaptivemarker.kind == 'services' %}
+            <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="services border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >   
+            <datalist id="{{marker.id}}">
+            </datalist>
+            {% endif %} 
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</form>

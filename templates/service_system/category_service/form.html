@@ -1,0 +1,18 @@
+
+<form action="{% url 'service_system:category_service_create' %}" method="POST" id="category-create-form">
+	{% csrf_token %}
+	<div class="modal-header">
+		<h4 class="modal-title">Добавить категорию</h4>
+		<button type="button" class="close" data-dismiss="modal">&times;</button>
+	</div>
+
+	<div class="modal-body" id="myModal-content">
+		Название <br>
+		{{form.title}}
+	</div>
+
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-success" >Сохранить</button>
+		<button type="button" class="btn btn-danger" data-bs-dismiss="modal" >Закрыть</button>
+	</div>
+</form>

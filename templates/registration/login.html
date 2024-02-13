@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+		{% load static %}
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Bootstrap CSS -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap" rel="stylesheet">
+	<link href="{% static 'new/css/bootstrap.min.css' %}" rel="stylesheet">
+	<link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+{% load widget_tweaks %}
+
+<body class="authentication-bg" style="background-image: url({% static "img/face1.jpg" no-repeat center/cover;%}); background-repeat: no-repeat;background-size: cover;background-position: center;"><br><br>
+    <div class="account-pages my-5">
+        <div class="container">
+            <!-- <div class="row">
+                <div class="col-lg-12">
+                    <div class="text-center">
+                        <a href="index.html" class="mb-2 d-block auth-logo text-decoration-none">
+                            <span class="logo logo-dark">NeuroMed</span>
+                        </a>
+                    </div>
+                </div>
+            </div> -->
+            <div class="row align-items-center justify-content-center">
+                <div class="col-md-8 col-lg-6 col-xl-5">
+                    <div class="card br-25">
+                       
+                        <div class="card-body p-4"> 
+                            <div class="text-center mt-2">
+                                <h5 class="text-primary">Добро пожаловать !</h5>
+                                <p class="text-muted">Войдите, чтобы продолжить работу с NeuroMed.</p>
+                            </div>
+                            <div class="p-2 mt-4">
+                                <form method="post" action="">
+									{% csrf_token %}
+    								{% if form.errors %}
+										<p>Ваше имя пользователя и пароль не совпадают. <br> Пожалуйста, попробуйте еще раз.</p>
+									{% endif %}
+                                    <div class="mb-3">
+                                        <label class="form-label" for="username">Имя пользователя</label>
+                                        {{ form.username|add_class:"form-control rounded" }}
+                                    </div>
+            
+                                    <div class="mb-3">
+                                        <!-- <div class="float-end">
+                                            <a href="auth-recoverpw.html" class="text-muted">Забыли пароль?</a>
+                                        </div> -->
+                                        <label class="form-label" for="userpassword">Пароль</label>
+                                        {{ form.password|add_class:"form-control rounded" }}
+                                    </div>
+            
+                                    <!-- <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="auth-remember-check">
+                                        <label class="form-check-label" for="auth-remember-check">Запомните меня</label>
+                                    </div> -->
+                                    
+                                    <div class="mt-3 text-end">
+                                        <input type="submit" class="w-100 mb-2 mt-3 rounded btn btn-primary w-sm waves-effect waves-light" value="Авторизоваться">
+										<input type="hidden" name="next" value="{{ next }}">	
+                                    </div> 
+
+                                </form>
+                            </div>
+        
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- end row -->
+        </div>
+        <!-- end container -->
+    </div>
+</body>
+</html>

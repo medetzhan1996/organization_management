@@ -1,0 +1,33 @@
+<div class="modal-header">
+	<h5 class="modal-title" id="exampleModalLabel">Выберите выполненные услуги	</h5>
+	<!--button type="button" class="btn btn-primary btn-sm">
+		+
+	</button-->
+</div>
+<form id="consumable_appointed_service_form" action="{% url 'technological_card:consumable_appointed_service' customer=customer.id %}"
+	method="POST" data-save_history="">
+	{% csrf_token %}
+	<div class="modal-body">
+		{% include 'service_system/appointed_services/list.html' %}
+		<div id="consumable-content" class="d-none">
+			<h6>Расходные материалы</h6>
+			<table class="table table-bordered">
+				<tr>
+					<th>Название материала</th>
+					<th>Склад</th>
+					<th>Расход</th>
+					<th>
+						<button type="button" id="consumable-add" class="btn btn-sm btn-primary">+</button>
+					</th>
+				</tr>
+				<tbody id="consumable-tbody-content">
+					
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<input type="submit" name="" value="Сохранить" class="btn btn-success">
+	    <button type="button" class="btn btn-info" data-dismiss="modal">закрыть</button>
+	</div>
+</form>

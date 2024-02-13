@@ -1,0 +1,10 @@
+{% for service in services %}
+    <p>
+    	<li class="d-flex align-items-center justify-content-between border-top">
+    		<a href="#" class="color-455862 service-update" data-id="{{ service.id }}">
+    			<i class="fa fa-folder-o mr-2" aria-hidden="true"></i>
+    			{{service.title}}
+    		</a>
+	    </li>
+    </p>
+{% endfor %}

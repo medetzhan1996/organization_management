@@ -1,0 +1,36 @@
+{% load inspection_tags %}
+{% group_by_date schedules as schedule_group_by_dates %}
+{% for schedule_date in schedule_group_by_dates %}
+	<div class="div-content-list d-flex justify-content-around">
+		<div class="d-flex">
+			<div class="mr-3 text-center">
+				<p class="category-baner mb-0 tx-28">{{schedule_date.start_datetime__date|date:"d"}}</p>
+				<p class="mb-1 text-muted tx-14">{% week_name_date schedule_date.start_datetime__date %}</p>
+			</div>
+		</div>
+		<ul class="bullet-line-list mb-0">
+			{% get_schedule_by_date schedules schedule_date.start_datetime__date  as schedule_by_date %}
+			{% for schedule in schedule_by_date %}
+				<a href="{% url 'document_circulation:form_in_history' pk=schedule.id %}">
+					<li>
+						<div class="d-flex justify-content-around border-btn-list">
+							<div class="mr-3" style="width: 10%">
+								<p class="category-baner mb-0 tx-12">{{schedule.start_datetime|date:"H:i"}}</p>
+								<p class="mb-1 text-muted"> {{schedule.duration}} минут </p>
+							</div>
+							<div class="ml-3"  style="width: 90%">
+								<p class="category-baner mb-0 tx-12">{{schedule.customer.name}}  <span class="float-end status"> подтвердил</span></p>
+								<p class="mb-1 text-muted">
+									{% for value in schedule.scheduleservice_set.all %}
+						                {{ value.service.title }} , 
+						            {% empty %}
+						            	Услуга не указана
+						            {% endfor %}</p>
+							</div>
+						</div>
+					</li>
+				</a>
+			{% endfor %}
+		</ul>
+	</div>
+{% endfor %}

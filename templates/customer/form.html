@@ -1,0 +1,71 @@
+{% load widget_tweaks %}
+<form action="{{ url }}" method="POST" id="customer-form">
+	{% csrf_token %}
+	<div class="modal-header">
+		<h4 class="modal-title">Клиент</h4>
+	  	
+	  	<button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	</div>
+	<div class="modal-body row">
+		<div class="form-group col-md-4">
+		  	<label>Фамилия клиента</label>
+		  	{{form.last_name|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+		<div class="form-group col-md-4">
+		  	<label>Имя клиента</label>
+		  	{{form.first_name|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+		<div class="form-group col-md-4">
+		  	<label>Отчество клиента</label>
+		  	{{form.surname|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+		<div class="form-group col-md-4">
+		  	<label>Дата рождения :</label>
+		  	{{form.date_birth|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+		<div class="form-group col-md-4">
+		  	<label>Пол :</label>
+		  	{{form.gender|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+		<div class="form-group col-md-4">
+			<label><b>ИИН* :</b></label>
+			<div class="d-flex">
+				{{form.iin|add_class:"form-controller"|attr:"autocomplete:off"}}
+				<div id="api-customer-search" data-url="{% url 'customer:api_search' %}" class="btn btn-primary ml-2" style="border-radius: 0;height: 38px;">
+					поиск
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-md-12">
+		  	<label>Адрес :</label>
+		  	{{form.address|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+		<div class="form-group col-md-12">
+		  	<label>Место работы :</label>
+		  	{{form.place_work|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+		<div class="form-group col-md-6">
+		  	<label>Email:</label>
+		  	{{form.email|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+		<div class="form-group col-md-6">
+		  	<label>Телефон :</label>
+		  	{{form.phono_number|add_class:"form-controller"|attr:"autocomplete:off"}}
+		</div>
+
+		<div class="col-md-12" id="id_insurance_content">
+
+		</div>
+		<div id="contract-id">
+
+		</div>
+		<div id="program-id">
+		</div>
+		<div class="col-md-12" id="id_customer_professional_examination_content">
+
+		</div>
+	</div>
+	<div class="modal-footer">
+    	<button class="btn btn-success rounded-0">Сохранить клиента</button>&nbsp&nbsp
+  	</div>
+</form>

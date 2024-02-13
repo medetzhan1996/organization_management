@@ -1,0 +1,73 @@
+{% load register_tags %}
+{% load widget_tweaks %}
+
+<div class="formset">
+	<form action="{% url 'warehouse:sale_good_create' %}" method="POST">
+		{% csrf_token %}
+		{% condition_set_class customer 'd-none' '' as classes %}
+          <div id="customer-search-content" class="{{ classes }}">
+            <label>
+              Клиент:
+            </label>
+            <select id="id_customer" name="customer" autocomplate="off">
+              {% if customer %}
+                <option value="{{ customer.id }}">{{ customer.name }}</option>
+              {% endif %}
+            </select>
+            <!--button type="button"  id="add-customer" >+</button-->
+          </div>
+          <div id="customer-detail-content">
+            {% if customer %}
+              {% include "customer/detail.html" %}
+            {% endif %}
+          </div>
+		Склад <br>
+		{{ form.storage|add_class:"form-control" }} <br>
+		<input type="hidden" name="type_operation" value="4">
+		{{ storage_operation_good_formset.management_form }}
+		<h3>Список товаров</h3>
+	    <div class="formset-forms">
+	    	<div class="row">
+		    	<div class="col-md-5">
+		    		Товар
+		    	</div>
+		    	<div class="col-md-5">
+		    		Количество
+		    	</div>
+		    	<div class="col-md-2">
+		    		+ / -
+		    	</div>
+	    	</div>
+	    	  
+	        {% for formset_form in storage_operation_good_formset %}
+	            <div class="formset-form row">
+	            	<div class="col-md-5">
+	                	{{formset_form.good|add_class:"form-control"}}
+	                </div>
+	                <div class="col-md-5">
+	                	{{formset_form.quantity|add_class:"form-control"}}
+	                </div>
+	                <div class="col-md-2 delete-content">
+	                	{{formset_form.DELETE}}
+	                </div>
+	            </div>
+	        {% endfor %}
+	    </div>
+	    <button type="button" class="btn btn-primary btn-sm  add-good-formset">+ Добавить новый товар</button>
+	     
+	    <div class="empty-form d-none row">
+	    	<div class="col-md-5">
+	        	{{storage_operation_good_formset.empty_form.good|add_class:"form-control"}}
+	        </div>
+	        <div class="col-md-5">
+	        	{{storage_operation_good_formset.empty_form.quantity|add_class:"form-control"}}
+	        </div>
+	        <div class="col-md-2 delete-content">
+	        	{{storage_operation_good_formset.empty_form.DELETE}}
+	        </div>
+	    </div>
+	    <br> <br>
+	    <input type="submit" class="btn btn-success" value="Сохранить">
+	    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+    </form>
+</div>

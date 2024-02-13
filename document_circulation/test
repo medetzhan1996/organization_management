@@ -1,0 +1,2 @@
+#markers = Marker.objects.filter(name__in=['pacient_fio'],
+        #                                kind='customer').update(name='full_name')

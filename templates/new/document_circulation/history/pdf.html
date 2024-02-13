@@ -1,0 +1,30 @@
+{% load form_tags %}
+{{ history.get_form_data }}
+<table class="table table-bordered">
+	{% for rows in history.get_history %}
+		<tr>
+			{% for marker in rows.markers %}
+				<td colspan="{{marker.colspan}}" class="{% is_center  marker.is_center %}">
+					<span class="{% is_bold  marker.is_bold %}">{{marker.label|linebreaksbr}}</span>
+					{% if  marker.kind == 'checkbox' %}
+						{% for key, option in marker.options.items %}
+                  			{% is_checked option marker.form_data as checked %}
+                  			{% if checked == 'checked' %}
+                  			 	✓
+                  			{% else %}
+                  				✗
+                  			{% endif %}
+                  			{{option|default_if_none:""}}
+						{% endfor %}
+					{% elif  marker.kind == 'doctor' %}
+						
+					{% elif  marker.kind == 'currentDate' %}
+						{{marker.form_data}}
+					{% else %}
+						<span>{{marker.form_data|default_if_none:""}}</span>
+					{% endif %}
+				</td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+</table>

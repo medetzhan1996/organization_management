@@ -1,0 +1,5 @@
+{% for row in form.get_rows %}
+	{% for marker in row.get_markers %}
+		<option value="{{marker.id}}">{{marker.label}}</option>
+	{% endfor %}
+{% endfor %}

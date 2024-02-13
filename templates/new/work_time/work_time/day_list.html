@@ -1,0 +1,28 @@
+{% load register_tags %}
+{% get_time_interval "08:00:00" "18:00:00" 20 as time_intervals %}
+{% for time in work_time %}
+  {% time_format time.start_time as start_time %}
+  {% time_format time.end_time as end_time %}
+  <li class="list-unstyled mb-2 day-work-time-content">
+    <div class="d-flex justify-content-between border-btn-list align-items-center">
+      <div class="ml-3 d-flex">
+        <select name="start_time" class="time-selectize start-time" data-id="{{time.id}}">
+          {% for value in time_intervals %}
+            {% time_format value as time_interval %}
+            <option value="{{time_interval}}" {% is_selected time_interval start_time %}>{{time_interval}}</option>
+          {% endfor %}
+        </select>
+        <span class="mr-2 ml-2 fz17 mt-2">-</span>
+        <select name="end_time" class="time-selectize end-time" data-id="{{time.id}}">
+          {% for value in time_intervals %}
+            {% time_format value as time_interval %}
+            <option value="{{time_interval}}" {% is_selected time_interval end_time %}>{{time_interval}}</option>
+          {% endfor %}
+        </select>
+        <span class="mr-3 ml-3 mt-1 fz15 mt-1 work-time-delete" data-id="{{time.id}}"> <i class="fa fa-trash" title="Удалить интервал"></i> </span>
+      </div>
+    </div>
+  </li>
+{% empty %}
+  Недоступен
+{% endfor %}

@@ -1,0 +1,25 @@
+<div class="">
+	<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+		<h5><!-- 
+			<span class="service-create-cancel"> < </span> -->
+			<button class="btn btn-col btn-sm service-create-cancel">
+				<b> < </b>
+			</button>
+			Обновить существующую услугу
+
+		</h5>
+		<span style="color: red;" class="service-delete" data-url="{% url 'service_system:service_delete' pk=pk %}">Удалить текущую услугу</span>
+	</div>
+	<div class="list-content scroll-service">
+		<form action="{% url 'service_system:service_update' pk=pk %}" method="POST" id="service-form">
+			
+			<div>
+				{% include "new/service_system/service/form.html" %}
+			</div>
+			<div>
+				<button class="btn btn-primary">Обновить услугу</button>
+				<button class="btn btn-danger service-create-cancel">Отменить</button>
+			</div>
+		</form>
+	</div>
+</div>

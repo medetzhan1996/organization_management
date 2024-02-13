@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load inspection_tags %}
+
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div id="myToast" class="toast show align-items-center text-white bg-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+            <div class="toast-body">
+                {{ message }}
+            </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+         </div>
+    {% endfor %}
+{% endif %}
+<div class="row">
+	<div class="col-md-12 col-lg-12 col-xl-8 col-sm-12">
+		<div class="card card-dashboard-one ">
+			<div class="card-header">
+				<div class="d-sm-flex mb-1 justify-content-between">
+					<div class="d-flex align-items-stretch">
+						<select id="id_mode" name="mode" class="form-control w-50">
+							<option value="daily" {% compare_set_class mode 'daily' 'selected' %}>Ежедневно</option>
+							<option value="weekly" {% compare_set_class mode 'weekly' 'selected' %}>Еженедельно</option>
+						</select>
+						{% get_week_by_date date as week %}
+						<input type="week" id="id_weekly" type="text" name="week" value="{{week}}"
+						class="form-control w-50 ml-2 {% compare_set_class mode 'weekly' '' 'd-none' %}" >
+						<input type="date" id="id_daily" type="text" name="date" value="{{date}}"
+						class="form-control w-50 ml-2 {% compare_set_class mode 'daily' '' 'd-none' %}">
+					</div>
+					<form class="form-header-card ml-lg-auto ml-sm-auto d-flex pt-md-0 justify-content-end">
+						<!--input type="text" class="form-control w-50" placeholder="Поиск"-->
+						<a href="#" class="btn btn-primary btn-form no-wrap ml-2 "  id="schedule-create">Записать на прием</a>
+					</form>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive mailbox-messages scroll-reception">
+					{% include "inspection/reception/list.html" %}
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4 b-none-w400">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Уведомления</h3>
+			</div>
+			<div class="card-body card-body-blear">
+				<div class="table-responsive scroll-bell">
+					{% for action in actions %}
+						<div class="d-flex align-items-center py-2 border-bottom">
+							<div class="icon-bagcground">
+								<i class="fa fa-calendar-check-o"></i>
+							</div>
+							<div class="ml-3">
+								<p class="mb-1 text-muted mb-0 tx-13"><span class="category-baner">{{action.verb}}</span>{{action.target.customer.name}}</p>
+								<p class="mb-1 text-muted">{{action.target.start_datetime|timesince }} назад</p>
+							</div>
+						</div>
+					{% endfor %}
+				</div> 
+			</div>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block modal %}
+  {% include "register/schedule/modal.html" %}
+{% endblock %}
+
+{% block domready %}
+   
+   function get_reception_list(date, mode){
+    $.ajax({
+      type: "GET",
+      url: "{% url 'inspection:reception_list' %}",
+      data: {
+        date: date,
+        mode: mode
+      },
+      success: function(data) {
+        $('#reception-list-content').html(data)
+        var queryParams = new URLSearchParams(window.location.search)
+        queryParams.set("date", date)
+        queryParams.set("mode", mode)
+        history.replaceState(null, null, "?"+queryParams.toString())
+        location.reload()
+      },
+    })
+  }
+
+  $(document).on('click', '#schedule-create', function(){
+    var url = "{% url 'register:schedule_create' %}"
+    var user = "{{ request.user.id }}"
+    schedule_form(url, false, true, user)
+  })
+
+  $(document).on('submit', '#schedule-form', function(){
+    event.preventDefault()
+    var form = $('#schedule-form')
+    $.ajax({
+      type: form.attr('method'),
+      url: form.attr('action'),
+      data: form.serialize(),
+      success: function(data) {
+        location.reload()
+      }
+    })
+  })
+
+  $(document).on("change", "#id_daily", function() {
+    var date = $('#id_daily').val()
+    var mode = $('#id_mode').val()
+    get_reception_list(date, mode)
+  })
+  
+  $(document).on("change", "#id_weekly", function() {
+    var week = $(this).val()
+    var mode = $('#id_mode').val()
+    var date = moment(week).startOf('day').format("YYYY-MM-DD")
+    get_reception_list(date, mode)
+  })
+
+  $(document).on("change", "#id_mode", function() {
+    var mode = $(this).val()
+    var date = moment().format("YYYY-MM-DD")
+    if(mode == 'weekly'){
+      $('#id_daily').addClass('d-none')
+      $('#id_weekly').removeClass('d-none')
+    }
+    else{
+      $('#id_weekly').addClass('d-none')
+      $('#id_daily').removeClass('d-none')
+
+    }
+    get_reception_list(date, mode)
+  })
+
+  $(document).on("change", "#id_user, #id_date, #id_duration", function() {
+    var user = $('#id_user').val()
+    var date = $('#id_date').val()
+    var duration = $('#id_duration').val()
+    if(user && date && duration){
+      get_free_slots(user, date, duration)
+    }
+  })
+  
+{% endblock %}

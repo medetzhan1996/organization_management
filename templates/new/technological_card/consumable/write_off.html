@@ -1,0 +1,54 @@
+<div class="modal-header">
+	<h5 class="modal-title" id="exampleModalLabel">Выберите выполненные услуги	</h5>
+	<!--button type="button" class="btn btn-primary btn-sm">
+		+
+	</button-->
+</div>
+<form id="consumable_write_off_form" action="{% url 'technological_card:consumable_write_off' customer=customer.id %}"
+	method="POST">
+	{% csrf_token %}
+	<div class="modal-body">
+		{% for schedule in schedules %}
+			<!--h6>
+				{{ schedule.start_datetime|date:'d.m.Y / H:i:s' }}
+			</h6-->
+			{% for schedule_service in schedule.get_services %}
+				<p>
+					{% if schedule_service.status == 1 %}
+						&#10004;
+					{% else %}
+						<input type="checkbox" id="id_{{ schedule_service.id }}" data-service="{{ schedule_service.service.id }}" name="schedule_service" value="{{ schedule_service.id }}">
+					{% endif %}
+					<label for="id_{{ schedule_service.id }}">{{ schedule_service.service.title }}</label>
+					/ {{ schedule.start_datetime|date:'H:i:s' }}
+					{% if schedule_service.status == 1 %}
+						<span>[Выполнена]</span>
+					{% endif %}
+				</p>
+			{% endfor %}
+		{% empty %}
+			<p>Нет назначенных услуг <a href="">(Сохранить без услуги)</a></p>
+			<p>!</p>
+		{% endfor %}
+		<div id="consumable-content" class="d-none">
+			<h6>Расходные материалы</h6>
+			<table class="table table-bordered">
+				<tr>
+					<th>Название материала</th>
+					<th>Склад</th>
+					<th>Расход</th>
+					<th>
+						<button type="button" id="consumable-add" class="btn btn-sm btn-primary">+</button>
+					</th>
+				</tr>
+				<tbody id="consumable-tbody-content">
+					
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<input type="submit" name="" value="Сохранить" class="btn btn-success">
+	    <button type="button" class="btn btn-info" data-dismiss="modal">закрыть</button>
+	</div>
+</form>

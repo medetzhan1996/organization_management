@@ -1,0 +1,21 @@
+<div class="">
+	<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+		<h5>
+			<span class="good-create-cancel"> < </span>
+			Обновить существующий товар
+		</h5>
+		<span style="color: red;" class="good-delete" data-url="{% url 'warehouse:good_delete' pk=good.pk %}">Удалить текущий товар</span>
+	</div>
+	<div class="list-content">
+		<form action="{% url 'warehouse:good_update' pk=good.pk %}" method="POST" id="good-form">
+			
+			<div>
+				{% include "warehouse/good/form.html" %}
+			</div>
+			<div>
+				<button class="btn btn-primary">Обновить товар</button>
+				<button class="btn btn-danger good-create-cancel">Отменить</button>
+			</div>
+		</form>
+	</div>
+</div>

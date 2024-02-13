@@ -1,0 +1,15 @@
+<form action="{% url 'document_circulation:history_pdf' history.id %}" method="POST" target="print_popup" onsubmit="window.open('about:blank','print_popup','width=1000,height=800');">
+	{% csrf_token %}
+	<div class="card card-dashboard-one ">
+		<div class="card-header">
+		    <div class="az-dashboard-nav az-dashboard-nav-forma"> 
+		      <nav class="w-100">
+		        <button class="btn btn-sm  btn-success">Распечатать документ</button>
+		      </nav>
+		    </div>
+		</div>
+		<div class="card-body p-0 scroll-forma">
+			{% include "document_circulation/history/pdf.html" %}
+		</div>
+	</div>
+</form>

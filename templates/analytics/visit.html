@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load analytics_tags %}
+
+{% block content %}
+<div class="row">
+        <div class="col-md-2">
+            {% include "analytics/sidebar.html" %}
+        </div>
+        <div class="col-md-10">
+            <div class="analytic-filter mb-4 mt-2">
+                с <input type="date" id="id_start_date" class="btn btn-sm btn-col"  name="start_date" value="{{ start_date }}">
+                по <input type="date" id="id_end_date" class="btn btn-sm btn-col"  name="end_date" value="{{ end_date }}">
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {% get_quantity_schedule_by_status schedules 4 as canceled %}
+                    {% get_quantity_schedule_by_status schedules 3 as absence %}
+                    {% get_quantity_schedule_by_status schedules 2 as completed %}
+                    {% get_quantity_schedule_by_status schedules 1 as confirmed %}
+                    {% get_quantity_schedule_by_status schedules 0 as no_confirmed %}
+                    <div class="visit-title">
+                            Доходимость клиентов
+                    </div>
+                     <table class="table table-striped">
+                        <thead>
+                            <tr>
+                              <th scope="col">Статус</th>
+                              <th scope="col">Количество</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                              <th >Отменен</th>
+                              <th >{{ canceled }}</th>
+                            </tr>
+                            <tr>
+                              <th>Неявка</th>
+                              <th>{{ absence }}</th>
+                            </tr>
+                            <tr>
+                              <th>Выполнен</th>
+                              <th>{{ completed }}</th>
+                            </tr>
+                            <tr>
+                              <th>Подтвержден</th>
+                              <th>{{ confirmed }}</th>
+                            </tr>
+                            <tr>
+                              <th>Не подтвержден</th>
+                              <th>{{ no_confirmed }}</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-4">
+                    <div class="visit-title">
+                            Возвращаемость клиентов
+                    </div>
+                    {% get_quantity_primary_customer customers end_date as quantity_primary_customer %}
+                    {% get_repeated_schedule_customer customers end_date as repeated_schedule_customer %}
+                     <table class="table table-striped">
+                        <thead>
+                            <tr>
+                              <th scope="col">Статус</th>
+                              <th scope="col">Количество</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                              <th>Первичный</th>
+                              <th>{{ quantity_primary_customer }}</th>
+                            </tr>
+                            <tr>
+                              <th>Повторный</th>
+                              <th>{{ repeated_schedule_customer }}</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block domready %}
+    $(document).on('change', '#id_start_date, #id_end_date', function(){
+        set_params_url(['start_date', 'end_date'])
+    })
+{% endblock %}
+

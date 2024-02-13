@@ -1,0 +1,11 @@
+<form action="{% url 'document_circulation:history_pdf' history.id %}" method="POST" target="print_popup" onsubmit="window.open('about:blank','print_popup','width=1000,height=800');">
+	{% csrf_token %}
+	<div class="col-md-12">
+		<div class="btn-gruppa">
+			<button class="btn btn-xs btn-success">Распечатать документ</button>
+		</div>
+	</div>
+	<div class="col-md-12">
+		{% include "new/document_circulation/history/pdf.html" %}
+	</div>
+</form>

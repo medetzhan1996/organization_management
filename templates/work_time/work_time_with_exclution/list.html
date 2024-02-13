@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load static %}
+{% load register_tags %}
+{% block content %}
+<div class="row">
+	<input type="hidden" id="id_resource" value="{{ pk }}">
+	<div class="col-md-2">
+		<div class="app-sidebar__inner">
+		    <ul class="vertical-nav-menu metismenu">
+		        <li class="mm-active">
+		            <ul class="mm-collapse mm-show">
+						<li class="mm-collapse-title">Пользователи</li>
+						{% for val in users %}
+							<li>
+								<a href="{% url 'work_time:user_work_time_with_exclution_list' pk=val.id %}"
+								   class="{% compare_set pk val.id 'mm-active' '' %}">
+									<i class="metismenu-icon"></i>
+									{{val.full_name}}
+								</a>
+							</li>
+						{% endfor %}
+		            </ul>
+		        </li>
+		    </ul>
+		</div>
+    </div>
+    <div class="col-md-8">
+    	{% if pk %}
+    	<div class="card">
+			
+				<div class="card-body p-r-l-20-p-t-b-0">
+					<div class="row">
+						<div class="col-md-12 col-lg-12 col-xl-8 col-sm-12 az-content-left-mail" style="padding-top: 15px;">
+
+						  <div class="table-responsive mailbox-messages scroll-work-time">
+							{% include "work_time/work_time/week_list.html" with resource=resource %}
+						  </div>
+						</div>
+						<div class="col-xl-4 b-none-w400" style="padding-top: 15px;">
+						  <div class="">
+							<div class="card-body-blear p-0">
+							  <button type="button" id="{{ resource }}-worktime-exclution" class="btn btn-primary  w-100 mb-3">Добавить исключения</button>
+							  <div class="table-responsive scroll-omo">
+								{% include "work_time/work_time_exclution/list.html" %}
+							  </div>
+							</div>
+						  </div>
+						</div>
+				   </div>
+				</div>
+			
+        </div>
+        {% else %}
+		<div class="if-false">
+			<div>
+				<img src="{% static 'img/icon1.png' %}" alt="">
+				<span class="">
+					Выберите пользователя
+				</span>
+			</div>
+		</div>
+		{% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block modal %}
+	<div class="modal fade" id="universal-modal" tabindex="-1" role="dialog" aria-labelledby="universal-modal" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content" id="modal-content">
+	    	
+	    </div>
+	  </div>
+	</div>
+{% endblock %}
+
+{% block domready %}
+
+	function get_work_time_list(url, week){
+		$.ajax({
+	      	url: url,
+	      	type: 'GET',
+	      	data: {
+	      		week: week
+	      	},
+	      	success: function(data) {
+	      		var id = '#week-'+week+'-content'
+	      		$(id).html(data)
+	      	}
+	    })
+	}
+
+	function work_time_create(url, week, callback_url){
+		$.ajax({
+	      	url: url,
+	      	type: 'POST',
+	      	data: {
+	      		week: week
+	      	},
+	      	success: function(data) {
+	      		get_work_time_list(callback_url, week)
+	      	}
+	    })
+	}
+	
+	$(document).on("click", ".add-company-time", function() {
+		var url = "{% url 'work_time:company_work_time_create' %}"
+		var callback_url = "{% url 'work_time:company_work_time_list' %}"
+		var week = $(this).data('week')
+		work_time_create(url, week, callback_url)
+	})
+
+	$(document).on("click", ".add-user-time", function() {
+		var week = $(this).data('week')
+		var user = $('#id_resource').val()
+		var url = "{% url 'work_time:user_work_time_create' pk=0 %}".replace('0', user)
+		var callback_url = "{% url 'work_time:user_work_time_list' pk=0  %}".replace('0', user)
+		work_time_create(url, week, callback_url)
+	})
+
+	function work_time_exclution_create(url){
+		$.ajax({
+	      	url: url,
+	      	type: 'GET',
+	      	success: function(data) {
+	      		$('#modal-content').html(data)
+	      		$('#universal-modal').modal('show')
+	      		$("#exclution-date").flatpickr({
+	      			mode: "multiple",
+					dateFormat: "Y-m-d",
+	      			minDate: "today",
+					inline: true,
+					altInput: true,
+					locale: "ru",
+					onChange: function(selectedDates, dateStr, instance) {
+						$('#exclution-content').removeClass('d-none')
+						var exclution_time = $('#exclution-time-hidden').html()
+				        $('#exclution-time-content').html(exclution_time)
+				        $("#exclution-content select[name='end_time']:first").val('17:00')
+				    },
+				});
+	      	}
+	    })
+	}
+
+	function worktime_exclution_submit(url, form){
+		var data = form.serializeArray()
+		$.ajax({
+	      	type: form.attr('method'),
+	      	url: url,
+	      	data: data,
+	      	success: function(data) {
+	      		location.reload()
+	      	}
+	    })
+	}
+
+	$(document).on("click", "#company-worktime-exclution", function() {
+		var url = "{% url 'work_time:company_work_time_exclution_create' %}"
+		work_time_exclution_create(url)
+	})
+
+	$(document).on("click", "#user-worktime-exclution", function() {
+		var user = $('#id_resource').val()
+		var url = "{% url 'work_time:user_work_time_exclution_create' pk=0 %}".replace('0', user)
+		work_time_exclution_create(url)
+	})
+
+
+	$(document).on("submit", "#company-worktime-exclution-form", function() {
+		event.preventDefault()
+		url = "{% url 'work_time:company_work_time_exclution_create' %}"
+		var form = $(this)
+		worktime_exclution_submit(url, form)
+	})
+
+	$(document).on("submit", "#user-worktime-exclution-form", function() {
+		event.preventDefault()
+		var user = $('#id_resource').val()
+		url = "{% url 'work_time:user_work_time_exclution_create' pk=0 %}".replace('0', user)
+		var form = $(this)
+		worktime_exclution_submit(url, form)
+	})
+
+	$(document).on("click", ".work-time-delete", function() {
+		var pk = $(this).data('id')
+		var _this = $(this)
+		$.ajax({
+	      	url: "{% url 'work_time:work_time_delete' pk='0' %}".replace(0, pk),
+	      	type: 'POST',
+	      	data: {
+	      		pk: pk
+	      	},
+	      	success: function(data) {
+	      		_this.closest('.day-work-time-content').remove()
+	      	}
+	    })
+	})
+
+	$(document).on("change", ".time-selectize", function() {
+		var pk = $(this).data('id')
+		var week = $(this).closest('tr').find('.add-time').data('week')
+		var start_time = $(".start-time[data-id='" + pk +"']").val()
+		var end_time = $(".end-time[data-id='" + pk +"']").val()
+		if(start_time < end_time){
+			$.ajax({
+		      	url: "{% url 'work_time:work_time_update' pk='0' %}".replace(0, pk),
+		      	type: 'POST',
+		      	data: {
+		      		start_time: start_time,
+		      		end_time: end_time
+		      	}
+		    })
+		}
+	})
+	
+
+	$(document).on("click", ".get-schedule-user", function() {
+		var user = $(this).data('id')
+		var url = "{% url 'work_time:user_work_time_with_exclution_list' pk=0 %}".replace('0', user)
+		window.location.href = url
+	})
+
+	$(document).on("click", "#add-exclution-time", function() {
+		var last_exclution_time = $("#exclution-content select[name='end_time']:last option:selected")
+		var start_time = last_exclution_time.next().html()
+		var end_time = last_exclution_time.next().next().html()
+		var exclution_time = $('#exclution-time-hidden').html()
+        var end_time_check = $("#exclution-content select[name='end_time']:has(option[value='"+end_time+"'])")
+        var start_time_check = $("#exclution-content select[name='start_time']:has(option[value='"+end_time+"'])")
+        if(end_time_check.length > 0 && start_time_check.length > 0){
+        	$('#exclution-time-content').append(exclution_time)
+        	$("#exclution-content select[name='start_time']:last").val(start_time)
+        	$("#exclution-content select[name='end_time']:last").val(end_time)
+    	}
+        
+
+	})
+
+{% endblock %}

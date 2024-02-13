@@ -1,0 +1,11 @@
+{% load form_tags %}
+<ul class="{% is_selected_history history history_data.id %} ">
+  {% for history_data in histories %}
+    {% get_status history_data.status history_data.created_date as status %}
+    <li>
+      <a href="{% url 'document_circulation:form_in_history' schedule.id history_data.id %}">
+        {{history_data.form.title}}
+        <span class="over"> [{{history_data.created_date|date:"d.m.Y"}}] [{{status.title}}]</span></a>
+    </li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,17 @@
+<div class="">
+	<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+		<h5>Добавить новую тех. карту</h5>
+	</div>
+	<div class="list-content">
+		<form action="{% url 'technological_card:technological_card_create' %}" method="POST" id="technological_card-form">
+			
+			<div>
+				{% include "new/technological_card/technological_card/form.html" %}
+			</div>
+			<div>
+				<button class="btn btn-primary">Сохранить</button>
+				<button class="btn btn-danger technological_card-create-cancel">Отменить</button>
+			</div>
+		</form>
+	</div>
+</div>

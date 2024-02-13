@@ -1,0 +1,193 @@
+{% load widget_tweaks %}
+{% load register_tags %}
+{% if schedule_form.instance.id %}
+  {% get_val schedule_form.instance.customer as customer %}
+  {% url 'register:schedule_update' pk=schedule_form.instance.id as schedule_url %}
+{% else %}
+  {% url 'register:schedule_create' as schedule_url %}
+{% endif %}
+  <div class="modal-body p-0">
+    <button type="button" class="btn-close btn-close-new" data-bs-dismiss="modal" aria-label="Close">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="#000"><path d="M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z"/>
+      </svg>
+    </button>
+    <div class="d-flex d-flex-mob ">
+      <div class="content-registration">
+        <div class="" id="main-content">
+          <form id="schedule-form" action="{{ schedule_url }}" method="POST" >
+              {% csrf_token %}
+              <div class="registration-info mt-2">
+                <div class="form-group mt-2">
+                  {% condition_set_class customer 'd-none' '' as classes %}
+                  <div id="customer-search-content" class="{{ classes }}">
+                    <label>
+                      Клиент:
+                    </label>
+                    <div class="d-flex">
+                      <select id="id_customer" name="customer" autocomplate="off" required>
+                        {% if customer %}
+                        <option value="{{ customer.id }}">{{ customer.name }}</option>
+                        {% endif %}
+                      </select>
+                      <div class="btn btn-default ml-2" id="add-customer" style="background-color: white;border-radius: 0;height: 38px;">
+                          <i class="fa fa-plus "></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="customer-detail-content">
+                    {% if customer %}
+                      {% include "customer/detail.html" %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group row">
+                    <div class="col">
+                      <label>Статус</label>
+                      {{ schedule_form.status|add_class:"form-controller" }}
+                    </div>
+                    <div class="col">
+                      <label>Комментарий</label>
+                      {{ schedule_form.comment|add_class:"form-controller" }}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Сотрудник / Комната</label>
+                    <select id="id_object_id" name="object_id" class="user_equipment" required>
+                      <option value="">&nbsp</option>
+                      {% for func_structure in func_structures %}
+                          {% get_calendar_display_users func_structure.user_set as users %}
+                          {% if users %}
+                              <optgroup label="{{ func_structure.title }}"  data-resource="user">
+                                {% for user in users %}
+                                  {% selected_by_content_type schedule_form.instance user.id 10 as selected   %}
+                                  <option value="{{ user.id }}" data-resource="user" {{ selected }}>
+                                    {{ user.full_name }}
+                                  </option>
+                                {% endfor %}
+                              </optgroup>
+                          {% endif %}
+                      {% endfor %}
+                      {% for group_equipment in group_equipments %}
+                        <optgroup label="{{ group_equipment.title }}" data-resource="equipment">
+                          {% for equipment in group_equipment.equipment_set.all %}
+                            {% selected_by_content_type schedule_form.instance equipment.id 38 as selected %}
+                            <option value="{{ equipment.id }}"  data-resource="equipment" {{ selected }}>
+                              {{ equipment.title }}
+                            </option>
+                          {% endfor %}
+                        </optgroup>
+                      {% endfor %}
+
+                    </select>
+                  </div>
+                  <div class="formset">
+                    {{ schedule_service_formset.management_form }}
+                    <label>Услуга</label>
+                    <div class="formset-forms">
+                      {% if not schedule_form.instance.id %}
+                        <div class="service-content">
+                          <div class="form-group formset-form d-flex">
+                            <select name="scheduleservice_set-0-service" id="id_scheduleservice_set-0-service">
+                            </select>
+
+                            <div class="delete btn btn-default add-service-formset ml-2">
+                                <i class="fa fa-trash"></i>
+                            </div>
+                          </div>
+                          <div class="hierarchical-service-content"></div>
+                        </div>
+                      {% else %}
+                        {% for formset_form in schedule_service_formset %}
+                        <div class="form-group formset-form d-flex">
+                          {% for hidden in formset_form.hidden_fields %}
+                            {{ hidden }}
+                          {% endfor %}
+                          <select name="scheduleservice_set-{{ forloop.counter0 }}-service" id="id_scheduleservice_set-{{ forloop.counter0 }}-service">
+                            <option value="{{ formset_form.instance.service.id }}" data-duration="{{ formset_form.instance.service.duration }}" selected>{{ formset_form.instance.service.title }}</option>
+                          </select>
+                          <button class="delete btn btn-sm btn-default ml-2"
+                            data-duration="{{ formset_form.instance.service.duration }}"><i class="fa fa-trash "></i></button>
+                          <div class="d-none">{{ formset_form.DELETE }}</div>
+                        </div>
+                        {% empty %}
+                          <div class="form-group formset-form d-flex">
+                            <select name="scheduleservice_set-0-service" id="id_scheduleservice_set-0-service">
+                            </select>
+                            <button class="delete btn btn-sm btn-default mb-3  ml-2"><i class="fa fa-trash "></i></button>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
+                    <div class="form-group empty-form d-none">
+                      <div class="service-content">
+                        <div class="d-flex">
+                          <select name="scheduleservice_set-__prefix__-service" id="id_scheduleservice_set-__prefix__-service">
+                          </select>
+                          {{schedule_service_formset.empty_form.DELETE}}
+                          <div class="input-group-append ml-2 delete-content" data-id="">
+                          </div>
+                        </div>
+                        <div class="hierarchical-service-content"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col">
+                      <label>Дата</label>
+                      {{schedule_form.date|attr:"type:date"|add_class:"form-controller" }}
+                    </div>
+                    <div class="col">
+                      <label>Время</label><br>
+                      {% get_time_interval '08:00:00' '20:00:00' as times %}
+                      <select id="id_start_time" name="start_time" class="form-controller">
+                        {% if schedule_form.instance.id %}
+                            <option value="{{schedule_form.start_time.value}}" selected hidden>
+                              {{schedule_form.start_time.value}}
+                            </option>
+                          {% endif %}
+                        {%  for time in times %}
+                          <option value="{{ time|date:'H:i:s' }}">{{ time|date:'H:i' }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="col">
+                      <label>Длительность</label><br>
+                      {% get_times as times %}
+                      <select id="id_duration" name="duration" class="form-controller" required>
+                        <option value="" selected hidden>-----</option>
+                        {% for key, time in times.items %}
+                            <option value="{{ key }}"
+                              {% if schedule_form.instance.id %}
+                                {% is_selected key schedule_form.instance.duration %}
+                              {% elif key == '30' %}
+                                selected
+                              {% endif %}>{{ time }}
+                            </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                  </div>
+                  <div class="form-group">
+                    {{ schedule_form.content_type }}
+                    {{schedule_form.end_time}}
+                  </div>
+                </div>
+              </div>
+              {% if request.user.user_type == 1 or request.user.user_type == 2 %}
+
+              {% endif %}
+              <div class="mt-4 mb-3">
+                {% if schedule_form.instance.id %}
+                  <button type="button" class="btn btn-danger" id="schedule-delete" data-id="{{ schedule_form.instance.id }}">Удалить</button>
+                {% endif %}
+                <div class="pull-right">
+                  <input type="submit" class="btn btn-success mr-auto" value="Сохранить">&nbsp;&nbsp;
+                  <button type="button" class="btn btn-default"  data-bs-dismiss="modal" aria-label="Close">Отменить</button>
+                </div>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+

@@ -1,0 +1,19 @@
+{% for schedule in schedules %}
+	{% for schedule_service in schedule.get_services %}
+		<p>
+			{% if schedule_service.status == 1 %}
+				&#10004;
+			{% else %}
+				<input type="checkbox" id="id_{{ schedule_service.id }}" data-service="{{ schedule_service.service.id }}" name="schedule_service" value="{{ schedule_service.id }}">
+			{% endif %}
+			<label for="id_{{ schedule_service.id }}">{{ schedule_service.service.title }}</label>
+			/ {{ schedule.start_datetime|date:'H:i:s' }}
+			{% if schedule_service.status == 1 %}
+				<span>[Выполнена]</span>
+			{% endif %}
+		</p>
+	{% endfor %}
+{% empty %}
+	<p>Нет назначенных услуг <a href="">(Сохранить без услуги)</a></p>
+	<p>!</p>
+{% endfor %}

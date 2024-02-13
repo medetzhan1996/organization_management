@@ -1,0 +1,10 @@
+<form id="form-ready-phrase" action="{% url 'document_circulation:ready_phrase_create' marker=marker %}" method="POST">
+	<div class="mt-3">
+		{% csrf_token %}
+		{% include "document_circulation/ready_phrase/form.html" %}
+	</div>
+	<div>
+		<button type="submit" class="btn btn-primary">Сохранить</button>
+		<button type="button" class="btn btn-success ready_phrase-back">Отменить</button>
+	</div>
+</form>

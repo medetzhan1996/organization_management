@@ -1,0 +1,22 @@
+<div class="modal-header">
+  <h4 class="modal-title">Голос в текст</h4>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<!-- Modal body -->
+<div class="modal-body row">
+  <div class="col-9">
+    <input type="hidden" id="marker-audio" value="{{ marker }}">
+    <textarea id="result-audio" class="form-control" style="height: 100%;"></textarea>
+    <span id="interm" class="d-none"></span>
+  </div>
+  <div class="col-3">
+    <ul class="list-group list-group-flush tx-14">
+      <li class="list-group-item"  id="start-audio">Начать диктовку</li>
+      <li class="list-group-item" id="clear-audio">Очистить содержимое</li>
+      <li class="list-group-item"id="save-audio">Сохранить содержимое</li>
+    </ul>
+  </div>
+  
+  
+</div>

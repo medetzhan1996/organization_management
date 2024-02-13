@@ -1,0 +1,17 @@
+<div class="">
+	<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+		<h5>Добавить новую услугу</h5>
+	</div>
+	<div class="list-content scroll-service">
+		<form action="{% url 'service_system:service_create' %}" method="POST" id="service-form">
+			{% csrf_token %}
+			<div>
+				{% include "service_system/service/form.html" %}
+			</div>
+			<div>
+				<button class="btn btn-primary">Сохранить</button>
+				<button class="btn btn-danger service-create-cancel" data-bs-dismiss="modal" >Отменить</button>
+			</div>
+		</form>
+	</div>
+</div>

@@ -1,0 +1,11 @@
+{% for consumable in consumables %}
+	<p>
+	<li class="d-flex align-items-center justify-content-between border-top">
+		<a href="#" class="color-455862 consumable-update" data-id="{{ consumable.id }}">
+			<i class="fa fa-folder-o mr-2" aria-hidden="true"></i>
+			{{ consumable.good.title }} / {{ consumable.receipt_amount }} {{ consumable.good.get_sale_unit_display }}
+		</a>
+    </li>
+</p>
+{% endfor %}
+

@@ -1,0 +1,17 @@
+<div class="">
+	<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+		<h5>Добавить новый расходной материал</h5>
+	</div>
+	<div class="list-content">
+		<form action="{% url 'technological_card:consumable_create' %}" method="POST" id="consumable-form">
+			
+			<div>
+				{% include "technological_card/consumable/form.html" %}
+			</div>
+			<div>
+				<button class="btn btn-primary">Сохранить</button>
+				<button class="btn btn-danger consumable-create-cancel">Отменить</button>
+			</div>
+		</form>
+	</div>
+</div>

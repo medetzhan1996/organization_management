@@ -1,0 +1,25 @@
+<form action="{% url 'document_circulation:form_relation' %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="next_page" value="{{ next_page }}">
+    <div class="modal-body">
+        <button type="button" class="btn-close btn-close-new" data-bs-dismiss="modal" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="#000"><path d="M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z"/>
+          </svg>
+        </button>
+        <span>Выберите связанную форму</span><br/>
+        <select name="relation_form" id="relation-form" class="form-control">
+            <option value="">&nbsp</option>
+            {% for company_form in company_forms %}
+                <option value="{{company_form.form.id}}">{{company_form.form.title}}</option>
+            {% endfor %}
+        </select> <br>
+        <span>Выберите связанный маркер</span><br/>
+        <select id="id_marker" name="relation_markers" class="form-control" required>
+            <option value=""></option>   
+        </select><br>
+    </div>
+    <div class="modal-footer">            
+        <input type="submit" class="btn btn-success pull-left" value="сохранить" >
+        <button type="button" class="btn btn-info"  data-bs-dismiss="modal">закрыть</button>
+    </div>
+</form>

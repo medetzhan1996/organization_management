@@ -1,0 +1,24 @@
+{% load form_tags %}
+<table class="table table-condensed table-bottom" style="font-size: 13px;">
+  <tbody id="history-search-content">
+    {% for history_data in histories %}
+    {% get_status history_data.status history_data.created_date as status %}
+    <tr>
+      <td class="td-hover {% compare_set history.id history_data.id 'mm-active' '' %}">
+        <a href="{% url 'document_circulation:form_in_history' schedule.id history_data.id %}" class=""> {{history_data.form.title}}</a>
+        <span class="over"> [{{history_data.created_date|date:"d.m.Y H:i"}}] [{{status.title}}]</span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table><!-- 
+<ul class="{% is_selected_history history history_data.id %} ">
+  {% for history_data in histories %}
+    {% get_status history_data.status history_data.created_date as status %}
+    <li class="{% compare_set history.id history_data.id 'mm-active' '' %}">
+      <a href="{% url 'document_circulation:form_in_history' schedule.id history_data.id %}">
+        {{history_data.form.title}}
+        <span class="over"> [{{history_data.created_date|date:"d.m.Y H:i"}}] [{{status.title}}]</span></a>
+    </li>
+  {% endfor %}
+</ul> -->

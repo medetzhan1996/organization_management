@@ -1,0 +1,22 @@
+<div class="">
+	<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+		<h5>
+			<span class="technological_card-create-cancel"> < </span>
+			Обновить существующую расходной материал
+
+		</h5>
+		<span style="color: red;" class="service-delete" data-url="{% url 'technological_card:consumable_delete' pk=consumable.id %}">Удалить расходной материал</span>
+	</div>
+	<div class="list-content">
+		<form action="{% url 'technological_card:consumable_update' pk=consumable.id %}" method="POST" id="consumable-form">
+			
+			<div>
+				{% include "new/technological_card/consumable/form.html" %}
+			</div>
+			<div>
+				<button class="btn btn-primary">Обновить расходной материал</button>
+				<button class="btn btn-danger technological_card-create-cancel">Отменить</button>
+			</div>
+		</form>
+	</div>
+</div>

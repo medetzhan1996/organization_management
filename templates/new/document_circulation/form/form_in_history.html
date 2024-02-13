@@ -1,0 +1,551 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load form_tags %}
+{% block content %}
+<div class="az-dashboard-nav az-dashboard-nav-breadcrumbs"> 
+  <nav class="nav">
+    <a href="{% url 'inspection:reception_with_action_list' %}" class="nav-link active">Пациенты</a>
+    <span>/</span>
+    <a class="nav-link"  href="#" style="color: #657085">Форма записей</a>
+  </nav>
+  <nav class="nav">
+    <a  class="nav-link get-consumable_appointed_service" href="#"><i class="fa fa-list" aria-hidden="true"></i></i>Назначенные услуги</a>
+    <a id="schedule-create" class="nav-link" href="#"><i class="fa fa-calendar" aria-hidden="true"></i></i>Назначить услугу</a>
+  </nav>
+
+</div>
+<div class="row">
+    <input type="hidden" id="id_phrase_marker" value="{{ marker }}">
+    <div class="col-md-12 col-lg-8 col-xl-8 col-sm-12">
+      {% if history %}
+        {% is_pdf history as is_pdf %}
+        {% if not is_pdf %}
+          {% include "new/document_circulation/form/form.html" %}
+        {% else %}
+          {% include "new/document_circulation/history/detail.html" %}
+        {% endif %}
+      {% else %}
+        <div class="card card-dashboard-one ">
+          <div class="card-body">
+            <div class="table-responsive mailbox-messages scroll-forma">
+              <div class="info-content-forms">
+                <h6>Форма еще не выбрана</h6>
+                <p>Вы можете легко создать необходимую форму, нажимая на кнопку ниже!</p>
+                <button class="get-forms btn btn-success btn-form no-wrap ml-2  w-50" data-schedule="{{ schedule.id }}">+ Создать новую запись</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    <div class="col-lg-4 right-block">
+      <div class="card card-dashboard-one ">
+        <div class="">
+          <div class="az-dashboard-nav az-dashboard-nav-forma"> 
+            <nav class="nav  nav-pills">
+              <a class="nav-link  nav-link-history active" href="#" id="content-history-tab" data-bs-toggle="pill" data-bs-target="#content-history" type="button" role="tab" aria-controls="content-history" aria-selected="true">История болезни</a>
+
+              <a class="nav-link  nav-link-history" href="#"  id="content-ready-phrase-tab" data-bs-toggle="pill" data-bs-target="#content-ready-phrase" type="button" role="tab"
+                aria-controls="content-ready-phrase" aria-selected="false" disabled> Готовые шаблоны</a>
+            </nav>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="content-history" role="tabpanel" aria-labelledby="content-history-tab">
+              <div class="disease-history">
+                {% include "new/document_circulation/history/list.html" %}
+                <button type="button" class="get-forms btn btn-light btn-sm btn-new-crete">Cоздать новую запись</button>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="content-ready-phrase" role="tabpanel" aria-labelledby="content-ready-phrase-tab">
+              <div class="disease-history">
+                <div class="input-group mb-2 mt-2">
+                  <input type="text" class="form-control" id="ready-phrase-search" placeholder="..." aria-label="Recipient's username" aria-describedby="button-addon2">
+                  <button class="btn btn-primary" type="button" id="ready-phrase-button">Поиск шаблона</button>
+                </div>
+                <div id="tree-content" class="ready_phrase" data-url="' + url + '" data-schedule="{{ schedule.id }}"></div>
+                <button type="button" id="setting-ready-phrase" class="btn btn-primary btn-sm btn-new-crete">Настроить готовый шаблон</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block modal %}
+  <div class="modal" tabindex="-1" id="universal-modal">
+    <div class="modal-dialog modal-lg" >
+      <div class="modal-content" id="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modal title</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+   {% include "register/schedule/modal.html" %}
+{% endblock %}
+
+{% block domready %}
+
+  localStorage.setItem('selected_marker', '')
+
+  function get_phrase_marker(marker){
+    $('#tree-content').tree('destroy')
+    $('#ready-phrase-search').val('')
+    $('#id_phrase_marker').val(marker)
+    var url = "{% url 'document_circulation:ready_phrase_json' marker=0 %}".replace('0', marker)
+    $('#tree-content').data('url', url)
+    $.getJSON(
+        url,
+        function(data) {
+            $('#tree-content').tree({
+                data: data,
+                autoEscape: false
+            });
+        }
+    )
+    $("#content-ready-phrase-tab").prop("disabled", false).tab('show')
+  }
+
+  $(document).on("focus","span[contenteditable=true]",function() {
+      var marker = $(this).data('marker')
+      var selected_marker = localStorage.getItem('selected_marker')
+      if(marker != selected_marker){
+        get_phrase_marker(marker)
+        localStorage.setItem('selected_marker', marker)
+      }
+      
+  })
+
+  $(document).on("focus",".fixed-ready_phrase",function() {
+    var marker = $(this).data('marker')
+    var marker = $(this).data('marker')
+    var selected_marker = localStorage.getItem('selected_marker')
+    if(marker != selected_marker){
+      get_phrase_marker(marker)
+      localStorage.setItem('selected_marker', marker)
+    }
+    
+  })
+  $(document).on('click', '#ready-phrase-button', function (e) {
+    $('#tree-content').tree('destroy')
+    var marker = $('#id_phrase_marker').val()
+    var search = $('#ready-phrase-search').val()
+    var url = "{% url 'document_circulation:ready_phrase_json' marker=0 %}".replace('0', marker)
+    $.getJSON(
+        url+"?search=" + search,
+        function(data) {
+            $('#tree-content').tree({
+                data: data,
+                autoEscape: false
+            })
+        }
+    )
+  })
+
+  var index = 0
+  // Открыть список форм
+  $(document).on('click', '.get-forms', function (e) {
+    $.ajax({
+        type: "GET",
+        url: "{% url 'document_circulation:form_list' schedule=schedule.id %}",
+        success: function(data) {
+          $('#modal-content').html(data)
+          $('#universal-modal').modal('show')
+        }
+    })
+  })
+
+  // Выбрать необходимую форму
+  $(document).on('click', '.choose-form', function (e) {
+    event.preventDefault()
+    var url = $(this).data('url')
+      var form = $("<form action='" + url + "' method='post' style='display: none'>" +
+        '{% csrf_token %}' + 
+        "<input type='hidden' name='status' value='3' />" +
+        "<input type='submit' />" + 
+        "</form>").appendTo('body')
+    form.submit()
+  })
+
+  // Удалить незавершенную ИБ
+  $(document).on('click', '.delete-history', function (e) {
+    if(confirm("Вы уверены, что хотите удалить эту запись ?")){
+      var id = $(this).data('id')
+      var url = "{% url 'document_circulation:history_delete' pk=0 %}".replace('0', id)
+      var form = $("<form action='" + url + "' method='post' style='display: none'>" +
+          '{% csrf_token %}' + 
+          "<input type='hidden' name='schedule' value='{{schedule.id}}' />" +
+          "<input type='submit' />" + 
+          "</form>").appendTo('body')
+      form.submit()
+    }
+  })
+  
+  // Связанные формы настроить
+  $(document).on('click', '.form-relation-modal', function (e) {
+    var next_page = "{{ request.path }}"
+    $.ajax({
+          type: "GET",
+          url: "{% url 'document_circulation:form_relation' %}",
+          data: {
+            next_page: next_page
+          },
+          success: function(data) {
+            $('#modal-content').html(data)
+            $('#universal-modal').modal('show')
+          }
+      })
+  })
+
+  // Получить маркеров формы
+  $(document).on("change", "#relation-form", function() {
+    var form = $(this).val()
+    if(form){
+      $.ajax({
+            url: "{% url 'document_circulation:marker_relation' form=0 %}".replace('0', form),
+            type: 'GET',
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText)
+            },
+            success:function (data) {
+              $('#id_marker').html(data)
+            }
+        })
+    }
+  })
+
+  // Удалить отношения формы
+  $(document).on("click", ".remove-relation", function() {
+    var id = $(this).data('id')
+    $.ajax({
+          url: "{% url 'document_circulation:marker_relation_delete' pk=0 %}".replace('0', id),
+          type: 'POST',
+          error: function(jqXHR, textStatus, errorThrown) {
+              alert(jqXHR.responseText)
+          },
+          success:function (data) {
+            location.reload()
+          }
+      })
+  })
+
+  // Создать новый прием
+  $(document).on('click', '#schedule-create', function(){
+      var url = "{% url 'register:schedule_create' %}"
+      var user = "{{ request.user.id }}"
+      schedule_form(url, false, true, user)
+  })
+
+  // Сохранить назначенный прием
+  $(document).on("submit", "#schedule-form", function() {
+    event.preventDefault()
+    var form = $(this)
+      var url = form.attr('action')
+      $.ajax({
+           type: "POST",
+           url: url,
+           data: form.serialize(),
+           success: function(data)
+           {
+                if(data.status){
+                  location.reload()
+              }
+          }
+        })
+  })
+
+function get_consumable_appointed_service(save_history=false){
+    $.ajax({
+        type: "GET",
+        url: "{% url 'technological_card:consumable_appointed_service' customer=customer.id %}",
+        data: {},
+        success: function(data) {
+          $('#modal-content').html(data)
+          $('#universal-modal').modal('show')
+          if(save_history){
+            $('#consumable_appointed_service_form').attr('data-save_history', true)
+          }
+
+        }
+    })
+}
+
+  // Сохранить форму как пдф
+  $(document).on('click', '.get-consumable_appointed_service', function(){
+    get_consumable_appointed_service()
+  })
+
+  function consumable_appointed_service_save(){
+    var form = $('#consumable_appointed_service_form')
+    $.ajax({
+      type: form.attr('method'),
+      url: form.attr('action'),
+      data: form.serialize(),
+      success: function (data) {
+        $('#consumable_appointed_service_form input:checked').each(function() {
+            $(this).prop("disabled", true)
+            $('#universal-modal').modal('hide')
+        });
+        
+      },
+      error: function (data) {
+      },
+    });
+  }
+
+  // Сохранить списания расходного материала
+  $(document).on('submit', '#consumable_appointed_service_form', function(){
+    event.preventDefault()
+    consumable_appointed_service_save()
+    if($(this).data('save_history')){
+      var input = $("<input>").attr("name", "status").val(1);
+      $('#save_form').append(input).submit()
+    }
+  })
+
+  $(document).on('click', '#save-form-pdf', function(){
+    get_consumable_appointed_service(true)
+  })
+
+  
+
+  
+
+  // Расчитать расходной материал
+  $(document).on('change', 'input[name = "schedule_service"]', function(){
+    var id = $(this).val()
+    var schedule_service_class = 'schedule_service_' + id
+    var data_consumable = 'data-consumable-' + id
+    $('#consumable-content').removeClass('d-none')
+    if($(this).is(':checked')){
+      var service = $(this).data('service')
+      var url = "{% url 'technological_card:consumable_calculate' service=0 %}".replace('0', service)
+      $.ajax({
+            type: "GET",
+            url: url,
+            success: function(data) {
+              var html = ''
+              $.each( data, function( key, value ) {
+                var good_id = value.good.id
+                var good_title = value.good.title
+                var receipt_amount = value.receipt_amount
+                var storage_id = value.storage.id
+                var storage_title = value.storage.title
+                var consumable_content_id = '#consumable-' + storage_id + '-' + good_id
+                if($(consumable_content_id).length){
+                  var receipt_amount_elem = $(consumable_content_id).find('[name = "receipt_amount"]')
+                  var receipt_amount_res = parseInt(receipt_amount_elem.val()) + parseInt(receipt_amount)
+                  receipt_amount_elem.val(receipt_amount_res).attr(data_consumable, receipt_amount)
+                  $(consumable_content_id).addClass(schedule_service_class)
+                }
+                else{
+                  html = 
+                      `<tr id="consumable-` + storage_id + `-` + good_id + `" class="` + schedule_service_class + `">
+                      <td>`+ good_title + `
+                        <input type="hidden" name="good" value="` + good_id + `">
+                      </td>
+                      <td>` + storage_title + `
+                        <input type="hidden" name="storage" value="` + storage_id + `">
+                      </td>
+                      <td>
+                        <input type="number" name="receipt_amount" value="` + receipt_amount + `"
+                          ` + data_consumable + `="` + receipt_amount + `">
+                      </td>
+                      <th>
+                        <button type="button" class="btn btn-sm btn-danger remove-consumable">-</button>
+                      </th>
+                    </tr>`
+                }
+                $('#consumable-tbody-content').append(html)
+            })
+          }
+        })
+    }
+    else{
+      $("." + schedule_service_class).each(function() {
+        var receipt_amount_elem = $(this).find('[name = "receipt_amount"]')
+          var receipt_amount = receipt_amount_elem.attr(data_consumable)
+          $(this).removeClass(schedule_service_class)
+          if ($(this).is('[class*="schedule_service_"]')){ 
+            var receipt_amount_res = parseInt(receipt_amount_elem.val()) - parseInt(receipt_amount)
+            receipt_amount_elem.val(receipt_amount_res).attr(data_consumable, '')
+          }
+          else{
+            $(this).remove()
+          }
+      })
+    }
+  })
+
+  // Добавить расходной материал
+  $(document).on('click', '#consumable-add', function(){
+    event.preventDefault()
+    index += 1
+    html = 
+        `<tr>
+        <td>
+          <select id="id_good`+ index +`" name="good" required>
+            <option value="">&nbsp</option>
+          </select>
+        </td>
+        <td>
+          <select id="id_storage`+ index +`" class="form-control" name="storage" required>
+            <option value="">&nbsp</option>
+            {% for storage in request.user.company.storage_set.all %}
+              <option value="{{ storage.id }}">{{ storage.title }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td>
+          <input type="number" name="receipt_amount" value="" class="form-control" required>
+        </td>
+        <th>
+          <button type="button" class="btn btn-sm btn-danger remove-consumable">-</button>
+        </th>
+      </tr>`
+    $('#consumable-tbody-content').append(html)
+    good_search(index)
+  })
+
+  $(document).on('click', '.remove-consumable', function(){
+    $(this).closest('tr').remove()
+  })
+
+  $(document).on('click', '.get-audio-modal', function(){
+    var marker = $(this).data('marker')
+    $.ajax({
+        type: "GET",
+        url: "{% url 'document_circulation:audio_text' %}",
+        data: {
+          marker: marker
+      },
+        success: function(data) {
+        $('#modal-content').html(data)
+          $('#universal-modal').modal('show')
+        }
+    })
+  })
+  
+
+  $(document).on('dblclick', '.get-phrase', function(){
+    var phrase = ' ' + $(this).html()
+    var marker = $('#id_phrase_marker').val()
+    var element = $('#' + marker)
+    var name = element.attr('name')
+    var result = element.val() + phrase
+    $('#' + name).append(phrase)
+    element.val(result)
+  })
+
+  $(document).on('click', '.get-mkb10', function(){
+    var phrase = $(this).text()
+    var marker = $('#id_phrase_marker').val()
+    var element = $('#' + marker)
+    var name = element.attr('name')
+    $('#' + name).val(phrase)
+    element.val(phrase)
+  })
+
+  function get_ready_phrase_list(marker){
+    var url = "{% url 'document_circulation:ready_phrase_list' marker=0 %}".replace('0', marker)
+    $.ajax({
+        type: "GET",
+        url: url,
+        success: function(data) {
+          $('#ready-phrase-list').html(data)
+          $('#ready_phrase-content').removeClass('d-none')
+          $('#ready_phrase-additional-content').html('')
+        }
+    })
+  }
+
+  function show_setting_modal(){
+    var setting_html = `{% include 'document_circulation/ready_phrase/setting.html' %}`
+    $('#modal-content').html(setting_html)
+    $('#universal-modal').modal('show')
+  }
+  
+  $(document).on('click', '#setting-ready-phrase', function(){
+    var marker = $('#id_phrase_marker').val()
+    show_setting_modal()
+    get_ready_phrase_list(marker)
+  })
+
+  $(document).on('click', '#add-ready-phrase', function(){
+    var marker = $('#id_phrase_marker').val()
+    var url = "{% url 'document_circulation:ready_phrase_create' marker=0 %}".replace('0', marker)
+    $.ajax({
+        type: "GET",
+        url: url,
+        success: function(data) {
+          $('#ready_phrase-content').addClass('d-none')
+          $('#ready_phrase-additional-content').html(data)
+        }
+    })
+  })
+
+  $(document).on('click', '.edit-ready-phrase', function(){
+    var id = $(this).data('id')
+    var marker = $('#id_phrase_marker').val()
+    var url = "{% url 'document_circulation:ready_phrase_update' pk=0 %}".replace('0', id)
+    $.ajax({
+        type: "GET",
+        url: url,
+        success: function(data) {
+          $('#ready_phrase-content').addClass('d-none')
+          $('#ready_phrase-additional-content').html(data)
+        }
+    })
+  })
+
+
+  $(document).on('click', '.delete-ready-phrase', function(){
+      var _this = $(this)
+      result = confirm("Вы точно хотите удалить выбранный шаблон!")
+      if(result){
+        var id = $(this).data('id')
+        var url = "{% url 'document_circulation:ready_phrase_delete' pk=0 %}".replace('0', id)
+        $.ajax({
+          type: "POST",
+          url: url,
+          success: function(data) {
+            _this.closest('div').remove()
+          }
+        })
+      }
+      
+  })
+
+  $(document).on('click', '.ready_phrase-back', function(){
+    $('#ready_phrase-content').removeClass('d-none')
+    $('#ready_phrase-additional-content').html('')
+  })
+
+   
+  
+
+  // Сохранить готовый шаблон
+  $(document).on('submit', '#form-ready-phrase', function(){
+    event.preventDefault()
+    var marker = $('#id_phrase_marker').val()
+    var _this = $(this)
+      $.ajax({
+        type: _this.attr('method'),
+        url: _this.attr('action'),
+        data: _this.serialize(),
+        success: function (data) {
+          get_ready_phrase_list(marker)
+        }
+      })
+  })
+  
+
+{% endblock %}

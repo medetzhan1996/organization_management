@@ -1,0 +1,18 @@
+<table class="table table-bordered">
+	{% regroup work_time_exclusions by date as grouped %}
+	{% for group in grouped %}
+		<tr>
+			<td>{{group.grouper}}</td>
+			<td>
+				 {% for item in group.list %}
+				 	{{ item.start_time|date:"H:i" }} - {{ item.end_time|date:"H:i" }} <br>
+				 {% endfor %}
+			</td>
+			<td>
+				<button>-</button>
+			</td>
+		</tr>
+	{% empty %}
+		Недоступен
+	{% endfor %}
+</table>

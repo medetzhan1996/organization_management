@@ -1,0 +1,23 @@
+<div class="modal-header">
+  <h4 class="modal-title">Формы записей</h4>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+	<div class="scroll">
+		<table class="table-bottom">
+			{% for func_structure_form in func_structure_forms %}
+			{% url 'document_circulation:form_create' schedule.id func_structure_form.company_form.form.id as form_url %}
+			<tr class="group_2">
+        <td class="td-hover">
+        	<a style="font-weight: 500;"href="{{form_url}}" class="choose-form" data-url="{{form_url}}">{{func_structure_form.company_form.form.title}}</a>
+        </td>
+      </tr>
+      {% endfor %}
+		</table>
+	</div>
+	<form method="POST" id="choose-form-submit" action="{{ form_url }}">
+		{% csrf_token %}
+		<input type="hidden" name="status" value="3">
+	</form>
+</div>
