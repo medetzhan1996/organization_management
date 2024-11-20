@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load analytics_tags %}
+
+{% block content %}
+	
+    <div class="row">
+        <div class="col-md-2">
+            {% include "analytics/sidebar.html" %}
+        </div>
+        <div class="col-md-10">
+            <div class="analytic-filter mb-4 mt-2">
+                с <input type="date" id="id_start_date" name="start_date"  class="btn btn-sm btn-col" value="{{ start_date }}">
+                по <input type="date" id="id_end_date" name="end_date"  class="btn btn-sm btn-col" value="{{ end_date }}">
+                 <span class="ml-2">
+                    <!--button  class="btn btn-sm btn-col">Экспортировать в excel </button-->
+                </span>
+            </div>
+            <div class="analytic-table" style="width: 550px;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">ФИО администратора</th>
+                          <th scope="col">Записи</th>
+                          <th scope="col">Визиты</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            {% call_method user 'get_quantity_schedule_by_register' start_date end_date as quantity_schedule_by_register %}
+                            {% call_method user 'get_quantity_schedule_by_register' start_date end_date 1 as visits_schedule_by_register %}
+                            <tr>
+                              <th scope="row">1</th>
+                              <td>{{ user }}</td>
+                              <td>{{ quantity_schedule_by_register }}</td>
+                              <td>{{ visits_schedule_by_register }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block domready %}
+    $(document).on('change', '#id_start_date, #id_end_date', function(){
+        set_params_url(['start_date', 'end_date'])
+    })
+{% endblock %}
+

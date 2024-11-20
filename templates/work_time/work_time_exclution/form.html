@@ -1,0 +1,47 @@
+{% load register_tags %}
+{% get_time_interval "08:00:00" "20:00:00" 20 as time_intervals %}
+<form action="" method="POST" id="{{ resource }}-worktime-exclution-form">
+	{% csrf_token %}
+  	<div  class="modal-body">
+  		<button type="button" class="btn-close btn-close-new" data-bs-dismiss="modal" aria-label="Close">
+	      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="#000"><path d="M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z"/>
+	      </svg>
+	    </button>
+    	<div>
+    		<h5 class="text-center mb-4">Выберите дату (даты), которые вы хотите назначить в определенные часы</h5>
+			<input id="exclution-date" name="exclution_date" class="d-none" type="text" placeholder="Select Date.." data-input>
+		</div>
+		<div id="exclution-content" class="d-none text-center">
+			<br>
+			<h5>
+				В какие часы вы доступны?
+				<button id="add-exclution-time" type="button" class="btn btn-col btn-sm">+</button>
+			</h5>
+			<div id="exclution-time-content">
+				
+			</div>
+		</div>
+  	</div>
+  	<div class="modal-footer">
+    	<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+    	<button type="submit" class="btn btn-primary">Сохранить</button>
+  	</div>
+</form>
+<div id="exclution-time-hidden" class="d-none">
+	<div class="mb-2">			
+		<select name="start_time" class="btn btn-col btn-sm">
+			{% for value in time_intervals %}
+				{% time_format value as time_interval %}
+				<option value="{{time_interval}}">{{time_interval}}</option>
+			{% endfor %}
+		</select>
+		-
+		<select name="end_time" class="btn btn-col btn-sm">
+			{% for value in time_intervals %}
+				{% time_format value as time_interval %}
+				<option value="{{time_interval}}">{{time_interval}}</option>
+			{% endfor %}
+		</select>
+		<button type="button" class="ml-2 btn btn-sm btn-danger">-</button>
+	</div>
+</div>

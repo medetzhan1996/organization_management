@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load warehouse_tags %}
+
+{% block content %}
+	<h3>Складские операции</h3><br>
+	<div class="row">
+		<div class="col-md-2">
+			<input type="text" name="" placeholder="Поиск товара ..." class="form-control">
+		</div>
+		<div class="col-md-2">
+			<select class="form-control">
+				<option>Все склады</option>
+			</select>
+		</div>
+		<div class="col-md-2">
+			<input type="date" name="" class="form-control">
+		</div>
+		<div class="col-md-6">
+			<div class="dropdown pull-right">
+				<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+				    Складские операции
+				</button>
+				<div class="dropdown-menu">
+				    <a class="dropdown-item" href="{% url 'warehouse:arrival_good_create' %}">Приход товара</a>
+				    <a class="dropdown-item" id="sale-good-add" data-toggle="modal" data-target=".bd-example-modal-lg">Продажа товара</a>
+				    <a class="dropdown-item" href="{% url 'warehouse:writeOff_good_create' %}">Списания товара</a>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	<br>
+	<table class="table table-bordered">
+		<tr>
+			<th>Склад</th>
+			<th>Товар</th>
+			<th>Количество</th>
+			<th>Тип операции</th>
+			<th>Остаток на складе</th>
+			<th>Дата</th>
+		</tr>
+		{% for storage_good_operation in storage_good_operations %}
+			<tr>
+				<td>{{ storage_good_operation.storage_operation.storage.title }}</td>
+				<td>{{ storage_good_operation.good.title }}</td>
+				<td>{{ storage_good_operation.quantity }}</td>
+				<td>{{ storage_good_operation.storage_operation.get_type_operation_display }}</td>
+				<td>{% get_remainder storage_good_operation %}</td>
+				<td>{{ storage_good_operation.storage_operation.created_date }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
+
+{% block modal %}
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Продажа товара</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      	<div id="schedule-modal-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block domready %}
+
+	$(document).on("click", "#sale-good-add", function() {
+		$.ajax({
+	      	url: "{% url 'warehouse:sale_good_create' %}",
+	      	type: 'GET',
+	      	success: function(data) {
+	      		$('#schedule-modal-content').html(data)
+	      		customer_search()
+	      	}
+	    })
+	})
+
+{% endblock %}

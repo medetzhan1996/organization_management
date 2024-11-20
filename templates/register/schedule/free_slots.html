@@ -1,0 +1,7 @@
+{% for free_slot in free_slots %}
+	<option value="{{free_slot.time}}">{{free_slot.time}}</option>
+{% empty %}
+	<option>
+		Свободных мест нет
+	</option>
+{% endfor %}

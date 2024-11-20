@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+	{% load static %}
+	{% load register_tags %}
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Bootstrap CSS -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap" rel="stylesheet">
+	<link href="{% static 'new/css/bootstrap.min.css' %}" rel="stylesheet">
+	<link href="{% static 'new/css/font-awesome.min.css' %}" rel="stylesheet">
+	<link rel="stylesheet" href="{% static 'css/selectize.bootstrap4.css' %}">
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/speech-input.css' %}">
+    <link rel="stylesheet"  href="{% static 'css/fullcalendar/main.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/jqtree.css' %}">
+	<link href="{% static 'new/css/style.css' %}" rel="stylesheet">
+	<title>NeuroMed</title>
+</head>
+<body>
+	<div class="header">
+		<nav class="navbar navbar-dark bg-primary">
+			<div class="container-fluid">
+				<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<a class="navbar-brand" href="#">NeuroMed</a>
+				<div class="header-main">
+					<ul class="main-ul">
+						<li class="nav__item">
+							<a href="{% url 'register:index' %}"
+									class="nav-item {% set_active_class request.resolver_match.view_name 'register:index' %}">Регистратура</a>
+						</li>
+						<li class="nav__item">
+							
+							<a class="nav-item {% set_active_class request.resolver_match.view_name 'inspection:reception_with_action_list' 'document_circulation:form_in_history' 'document_circulation:history_pdf' %}" href="{% url 'inspection:reception_with_action_list' %}">Страница доктора</a>
+						</li>
+						<li class="nav__item">
+							<a class="nav-item {% set_active_class request.resolver_match.view_name 'work_time:user_work_time_with_exclution_list' 'work_time:company_work_time_with_exclution_list' %}" href="{% url 'work_time:user_work_time_with_exclution_list' %}">График работы</a>
+						</li>
+						<li class="nav__item">
+							<a class="nav-item {% set_active_class request.resolver_match.view_name 'warehouse:storage_operation_list' 'warehouse:arrival_good_create' 'warehouse:writeOff_good_create' %}" href="{% url 'warehouse:storage_operation_list' %}">Складские операции</a>
+						</li>
+						<li class="nav__item">
+							<a class="nav-item {% set_active_class request.resolver_match.view_name 'analytics:record' 'analytics:speciality' 'analytics:doctor' 'analytics:customer' 'analytics:visit' %}" href="{% url 'analytics:record' %}">Аналитика</a>
+						</li>
+						<li class="nav__item">
+							<a class="nav-item {% set_active_class request.resolver_match.view_name 'setting' %}" href="{% url 'setting' %}">Настройка</a>
+						</li>
+					</ul>
+				</div>
+				<div class="d-flex align-items-center">
+					<div class="dropdown az-profile-menu">
+						<a href="" class="az-img-user" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+							<img src="{% static 'new/img/face1.jpg' %}" alt=""></a>
+							<div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+								<div class="az-dropdown-header d-sm-none">
+									<a href="" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
+								</div>
+								<div class="az-header-profile">
+									<div class="az-img-user">
+										<img src="{% static 'new/img/face1.jpg' %}" alt="">
+									</div><!-- az-img-user -->
+									<h6>Aziana Pechon</h6>
+									<span>Premium Member</span>
+								</div><!-- az-header-profile -->
+								<div class="az-body">
+									<a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
+									<a href="page-signin.html" class="dropdown-item"><i class="typcn typcn-power-outline"></i> Sign Out</a>
+								</div>
+							</div><!-- dropdown-menu -->
+						</div>
+					</div>
+					<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+						<div class="offcanvas-header">
+							<h5 class="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
+							<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+						</div>
+						<div class="offcanvas-body">
+							<ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+								<li class="nav-item">
+									<a class="nav-link active" aria-current="page" href="#">Home</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">Link</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" id="offcanvasNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+										Dropdown
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="offcanvasNavbarDropdown">
+										<li><a class="dropdown-item" href="#">Action</a></li>
+										<li><a class="dropdown-item" href="#">Another action</a></li>
+										<li>
+											<hr class="dropdown-divider">
+										</li>
+										<li><a class="dropdown-item" href="#">Something else here</a></li>
+									</ul>
+								</li>
+							</ul>
+							<form class="d-flex">
+								<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+								<button class="btn btn-outline-success" type="submit">Search</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</nav>
+		</div>
+		<section class="content">
+			<div class="container-fluid">
+				{% block content %}{% endblock %}
+				{% block modal %}{% endblock %}
+			</div>
+		</section>
+		<script src="{% static 'js/jquery.min.js' %}"></script>
+		<script src="{% static 'js/popper.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/js.cookie.min.js' %}"></script>
+		<script src="{% static 'js/selectize.js' %}"></script>
+		<script src="{% static 'js/moment.min.js' %}"></script>
+		<script src="{% static 'js/moment-duration-format.js' %}"></script>
+		<script src="{% static 'js/fullcalendar/main.js' %}"></script>
+
+		<script src="{% static 'js/general.js' %}"></script>
+		<script src="{% static 'js/schedule.js' %}"></script>
+		<script src="{% static 'js/write_form.js' %}"></script>
+		<script src="{% static 'js/easytimer.min.js' %}"></script>
+		<script src="{% static 'js/flatpickr.js' %}"></script>
+		<script src="{% static 'js/flatpickr_ru.js' %}"></script>
+		<script src="{% static 'js/speech-input.js' %}"></script>
+		<script src="{% static 'js/form_set.js' %}"></script>
+		<script src="{% static 'js/warehouse.js' %}"></script>
+		<script src="{% static 'js/tree.jquery.js' %}"></script>
+		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+		<script src="{% static 'new/js/bootstrap.bundle.min.js' %}"></script>
+		<script type="text/javascript">
+			var csrftoken = Cookies.get('csrftoken');
+			function csrfSafeMethod(method) {
+	          // these HTTP methods do not require CSRF protection
+	          return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	      }
+	      $.ajaxSetup({
+	      	beforeSend: function(xhr, settings) {
+	      		if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+	      			xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	      		}
+	      	}
+	      });
+
+	      $(document).ready(function() {
+	      	{% block domready %}
+	      	{% endblock %}
+	      })
+	  </script>
+	</body>
+</html>

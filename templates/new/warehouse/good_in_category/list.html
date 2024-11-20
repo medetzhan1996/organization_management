@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block content %}
+	<div class="">
+		<div class="card-body p-r-l-20-p-t-b-0">
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-12 margin-left-20px">
+					<div class="content-catagory">
+						<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+							<h5>Категории</h5>
+							<button class="btn btn-col btn-sm category-create">
+								<b>+</b>
+							</button>
+						</div>
+						<div class="list-content">
+							<ul id="category-good-content" class="list-nav">
+								<li class=" d-flex align-items-center justify-content-between
+									{% if not active_category %} active  {% endif %}">
+									<a href="{% url 'warehouse:good_in_category' %}">Все услуги</a>
+								</li>
+								{% for category in categories %}
+									{% include "new/warehouse/category_good/list.html" %}
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="good-content" class="col-lg-8 col-md-8 right-block">
+					<div class="">
+						<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+							<h5>
+								{% if active_category %}
+									{{ active_category.title }}
+								{% else %}
+									Все товары
+								{% endif %}
+							</h5>
+							<div>
+								{% if active_category %}
+									<span class="category-good-delete"
+										data-url="{% url 'warehouse:category_good_delete' pk=active_category.id %}" style="color: red">Удалить категорию</span>
+								{% endif %}
+								&nbsp&nbsp
+								<button class="good-create btn btn-col btn-sm">+ Добавить товар</button>
+							</div>
+						</div>
+						<div class="list-content">
+							<ul id="good-list-content" class="list-nav">
+								{% include "new/warehouse/good/list.html" %}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="good-form-content" class="col-lg-8 col-md-8 right-block d-none" >
+				</div>
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block modal %}
+	<div class="modal" id="universalModal">
+		<div class="modal-dialog">
+			<div id="universalModal-content" class="modal-content">
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block domready %}
+	$(document).on("click", ".category-create", function() {
+		var url = "{% url 'warehouse:category_good_create' %}"
+		$.ajax({
+			url: url,
+			type: 'GET',
+			success: function(data) {
+				$('#universalModal-content').html(data)
+				$('#universalModal').modal('show')
+			}
+		})
+	})
+
+	$(document).on("submit", "#category-create-form", function() {
+		event.preventDefault()
+		$.ajax({ 
+			data: $(this).serialize(),
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(data) {
+				$('#category-good-content').append(data)
+				$('#universalModal').modal('hide')
+			}
+		})
+	})
+
+	$(document).on("click", ".category-good-delete", function() {
+		var url = $(this).data('url')
+		var _this = $(this)
+		var is_confirm = confirm("Подтвердите удаления!")
+		if(is_confirm){
+			$.ajax({ 
+				type: 'POST',
+				url: url,
+				success: function(data) {
+					if(data.status){
+						location.href = "{% url 'warehouse:good_in_category' %}"
+					}
+				}
+			})
+		}
+	})
+
+	$(document).on("click", ".good-create", function() {
+		$.ajax({ 
+			type: 'GET',
+			url: "{% url 'warehouse:good_create' %}",
+			success: function(data) {
+				$('#good-content').addClass('d-none')
+				$('#good-form-content').removeClass('d-none')
+				$('#good-form-content').html(data)
+			}
+		})
+	})
+
+	$(document).on("click", ".good-update", function() {
+		var pk = $(this).data('id')
+		var url = "{% url 'warehouse:good_update' pk=0 %}".replace('0', pk)
+		$.ajax({ 
+			type: 'GET',
+			url: url,
+			success: function(data) {
+				$('#good-content').addClass('d-none')
+				$('#good-form-content').removeClass('d-none')
+				$('#good-form-content').html(data)
+			}
+		})
+	})
+
+	$(document).on("click", ".good-create-cancel", function() {
+		event.preventDefault()
+		$('#good-form-content').html('').addClass('d-none')
+		$('#good-content').removeClass('d-none')
+	})
+
+	$(document).on("submit", "#good-form", function() {
+		event.preventDefault()
+		$.ajax({ 
+			data: $(this).serialize(),
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(data) {
+				if(data.status){
+					location.reload()
+				}
+			}
+		})
+	})
+
+	$(document).on("click", ".good-delete", function() {
+		var url = $(this).data('url')
+		var _this = $(this)
+		var is_confirm = confirm("Подтвердите удаления!")
+		if(is_confirm){
+			$.ajax({ 
+				type: 'POST',
+				url: url,
+				success: function(data) {
+					if(data.status){
+						location.reload()
+					}
+				}
+			})
+		}
+	})    
+{% endblock %}

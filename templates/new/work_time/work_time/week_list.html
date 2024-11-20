@@ -1,0 +1,113 @@
+{% load register_tags %}
+<div class="div-content-list d-flex justify-content-around">
+  <div class="mr-3 d-flex mt-2">
+    <span class="category-baner">Пн.</span>
+  </div>
+  <ul id="week-0-content" class="w-100">
+    {% get_week_time work_time_week 0 as work_time %}
+    {% include "new/work_time/work_time/day_list.html" %}
+  </ul>
+  <ul>
+    <li class="ml-3">
+      <span class="staus fz15 mr-2 add-{{ resource }}-time" data-week="0">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </span>
+    </li>
+  </ul>
+</div>
+<div class="div-content-list d-flex justify-content-around">
+  <div class="mr-3 d-flex mt-2">
+    <span class="category-baner">Вт.</span>
+  </div>
+  <ul id="week-1-content" class="w-100">
+    {% get_week_time work_time_week 1 as work_time %}
+    {% include "new/work_time/work_time/day_list.html" %}
+  </ul>
+  <ul>
+    <li class="ml-3">
+      <span class="staus fz15 mr-2 add-{{ resource }}-time" data-week="1">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </span>
+    </li>
+  </ul>
+</div>
+<div class="div-content-list d-flex justify-content-around">
+  <div class="mr-3 d-flex mt-2">
+    <span class="category-baner">Cр.</span>
+  </div>
+  <ul id="week-2-content" class="w-100">
+    {% get_week_time work_time_week 2 as work_time %}
+    {% include "new/work_time/work_time/day_list.html" %}
+  </ul>
+  <ul>
+    <li class="ml-3">
+      <span class="staus fz15 mr-2 add-{{ resource }}-time" data-week="2">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </span>
+    </li>
+  </ul>
+</div>
+<div class="div-content-list d-flex justify-content-around">
+  <div class="mr-3 d-flex mt-2">
+    <span class="category-baner">Чт.</span>
+  </div>
+  <ul id="week-3-content" class="w-100">
+    {% get_week_time work_time_week 3 as work_time %}
+    {% include "new/work_time/work_time/day_list.html" %}
+  </ul>
+  <ul>
+    <li class="ml-3">
+      <span class="staus fz15 mr-2 add-{{ resource }}-time" data-week="3">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </span>
+    </li>
+  </ul>
+</div>
+<div class="div-content-list d-flex justify-content-around">
+  <div class="mr-3 d-flex mt-2">
+    <span class="category-baner">Пт.</span>
+  </div>
+  <ul id="week-4-content" class="w-100">
+    {% get_week_time work_time_week 4 as work_time %}
+    {% include "new/work_time/work_time/day_list.html" %}
+  </ul>
+  <ul>
+    <li class="ml-3">
+      <span class="staus fz15 mr-2 add-{{ resource }}-time" data-week="4">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </span>
+    </li>
+  </ul>
+</div>
+<div class="div-content-list d-flex justify-content-around">
+  <div class="mr-3 d-flex mt-2">
+    <span class="category-baner">Сб.</span>
+  </div>
+  <ul id="week-5-content" class="w-100">
+    {% get_week_time work_time_week 5 as work_time %}
+    {% include "new/work_time/work_time/day_list.html" %}
+  </ul>
+  <ul>
+    <li class="ml-3">
+      <span class="staus fz15 mr-2 add-{{ resource }}-time" data-week="5">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </span>
+    </li>
+  </ul>
+</div>
+<div class="div-content-list d-flex justify-content-around">
+  <div class="mr-3 d-flex mt-2">
+    <span class="category-baner">Вс.</span>
+  </div>
+  <ul id="week-6-content" class="w-100">
+    {% get_week_time work_time_week 6 as work_time %}
+    {% include "new/work_time/work_time/day_list.html" %}
+  </ul>
+  <ul>
+    <li class="ml-3">
+      <span class="staus fz15 mr-2 add-{{ resource }}-time" data-week="6">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </span>
+    </li>
+  </ul>
+</div>

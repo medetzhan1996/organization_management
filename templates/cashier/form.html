@@ -1,0 +1,133 @@
+{% load widget_tweaks %}
+{% load register_tags %}
+{% load cashier_tags %}
+<form action="{% url 'cashier:accept_payment' schedule=schedule.id %}" method="POST" id="cashier-form">
+	<div class="">
+		{{ schedule_service_formset.management_form }}
+        <table class="table table-bordered">
+          <tbody>
+            <tr>
+          <th>Услуга</th>
+          <th>Кол-во</th>
+          <th>Цена, тг</th>
+          <th>Скидка, %</th>
+          <th>Итог, тг</th>
+          <th>
+            <!--button type="button" data-url="{% url 'register:schedule_update' pk=schedule.id %}"
+					class="btn btn-xs btn-success add-service">+</button-->
+          </th>
+        </tr>
+        {% for formset_form in schedule_service_formset %}
+			<tr class="formset-form">
+				{% for hidden in formset_form.hidden_fields %}
+					{{ hidden }}
+				{% endfor %}
+				{% condition_set_class formset_form.instance.status_payment '' 'd-none' as is_paid %}
+				{% condition_set_class formset_form.instance.status_payment 'd-none' '' as is_not_paid %}
+				<td>
+					{{ formset_form.instance.service.title }}
+					<div class="d-none">{{ formset_form.service }}</div>
+				</td>
+				<td>
+					<div class="{{ is_not_paid }}">{{ formset_form.quantity|add_class:"input-table-cahir" }}</div>
+					<div class="{{ is_paid }}">{{ formset_form.instance.quantity }}</div>
+				</td>
+				<td>
+					<div class="{{ is_not_paid }}">{{ formset_form.price|add_class:"input-table-cahir" }}</div>
+					<div class="{{ is_paid }}">{{ formset_form.instance.price }}</div>
+				</td>
+				<td>
+					<div class="{{ is_not_paid }}">{{ formset_form.discount|add_class:"input-table-cahir" }}</div>
+					<div class="{{ is_paid }}">{{ formset_form.instance.discount }}</div>
+				</td>
+				<td  class="invoice">
+					{{ formset_form.instance.get_invoice }}
+				</td>
+				<td>
+					{% if formset_form.instance.status_payment %}
+						Оплачен
+					{% else %}
+						<button class="delete btn btn-sm btn-default mb-3"><i class="fa fa-trash "></i></button>
+						<div class="d-none">{{ formset_form.DELETE }}</div>
+					{% endif %}
+				</td>
+			</tr>
+		{% endfor %}
+		<tr>
+			<td colspan="4"></td>
+			<td>
+				<span id="sum-invoice">{{ schedule.get_invoice }}</span>
+			</td>
+		</tr>
+      </tbody>
+    </table>
+		<div class="formset">
+			{{ schedule_invoice_formset.management_form }}
+			{% for hidden in schedule_invoice_formset.0.hidden_fields %}
+				{{ hidden }}
+			{% endfor %}
+			<table class="table table-bordered">
+				<tr>
+					<td>
+						Полученная сумма:
+						{{ schedule_invoice_formset.0.paid|add_class:"paid form-controller" }}
+					</td>
+					<td>
+						Тип оплаты
+						{{ schedule_invoice_formset.0.payment_method|add_class:"form-controller" }}
+					</td>
+					<td>
+						Остаток:
+						<input type="text" id="id_remainder" class="form-controller" name="paid" value="{% get_remainder schedule.get_invoice schedule.get_paid %}" disabled>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3">
+						Комментарий <br>
+						{{ schedule_invoice_formset.0.comment|add_class:"form-controller" }}
+					</td>
+				</tr>
+			</table>
+			<br>
+			<button type="button" class="add-pay-formset btn btn-primary btn-xs">+</button>
+			<div class="formset-forms">
+				{% for formset_form in schedule_invoice_formset %}
+					{% if not forloop.first %}
+						{% for hidden in formset_form.hidden_fields %}
+	                    	{{ hidden }}
+	                  	{% endfor %}
+                  		Дополнительная оплата<br>
+                  		{{ formset_form.paid|add_class:"paid" }} &nbsp&nbsp&nbsp
+                  		{{ formset_form.payment_method }} {{ formset_form.DELETE }}<br>
+                  	{% endif %}
+				{% endfor %}
+			</div>
+			<br>
+			<!--button class="btn btn-primary">+</button-->
+			<div class="form-group empty-form d-none">
+				{{schedule_invoice_formset.empty_form.paid|add_class:"paid"}} &nbsp&nbsp&nbsp
+				{{schedule_invoice_formset.empty_form.payment_method}}
+				{{ formset_form.DELETE }}
+			</div>
+		</div>
+		<!-- <div class="form-group row">
+			<div class="col formset">
+				<button class="btn btn-info">Сохранить</button>
+			</div>
+		</div> -->
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default back-schedule" data-url="{% url 'register:schedule_update' pk=schedule.id %}">↶ Вернуться назад</button>
+	        <input type="submit" class="btn btn-success rounded-0" value="Сохранить">&nbsp;&nbsp;
+	    </div>
+    <!-- <div class="form-group row">
+      <div class="col-md-12">
+      <p>Итого:<span id="sum-invoice">6000</span> </p>  
+      </div>
+      <div class="col-md-6 col-sm-12 mb-2">
+        <button class="btn btn-primary w-100">Оплатить наличными</button></div>
+      <div class="col-md-6 col-sm-12">
+        <button class="btn btn-warning w-100">Оплатить банковской картой</button>
+      </div>
+    </div> -->
+  </div>
+</form>

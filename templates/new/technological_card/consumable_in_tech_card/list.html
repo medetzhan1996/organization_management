@@ -1,0 +1,176 @@
+	{% extends "base.html" %}
+
+	{% block content %}
+	<div class="">
+		<div class="card-body p-r-l-20-p-t-b-0">
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-12 margin-left-20px">
+					<div class="content-catagory">
+						<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+							<h5>Технологическая карта</h5>
+							<button class="btn btn-col btn-sm technological_card-create">
+								<b>+</b>
+							</button>
+						</div>
+						<div class="list-content">
+							<ul id="technological_card-content" class="list-nav">
+								<li class=" d-flex align-items-center justify-content-between
+									{% if not active_technological_card %} active  {% endif %}">
+									<a href="{% url 'technological_card:consumable_in_tech_card' %}">Все технологические карты</a>
+								</li>
+								{% for technological_card in technological_cards %}
+									{% include "new/technological_card/technological_card/list.html" %}
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="consumable-content" class="col-lg-8 col-md-8 right-block">
+					<div class="">
+						<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+							<h5>
+								{% if active_technological_card %}
+									{{ active_technological_card.title }}
+								{% else %}
+									Все технологические карты
+								{% endif %}
+							</h5>
+							<div>
+								{% if active_technological_card %}
+									<span class="technological_card-delete"
+										data-url="{% url 'technological_card:technological_card_delete' pk=active_technological_card.id %}" style="color: red">Удалить тех. карту</span>
+								{% endif %}
+								&nbsp&nbsp
+								<button class="consumable-create btn btn-col btn-sm">+ Добавить расходной материал</button>
+							</div>
+						</div>
+						<div class="list-content">
+							<ul id="consumable-list-content" class="list-nav">
+								{% include "new/technological_card/consumable/list.html" %}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="consumable-form-content" class="col-lg-8 col-md-8 right-block d-none" >
+				</div>
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block modal %}
+	<div class="modal" id="universalModal">
+		<div class="modal-dialog">
+			<div id="universalModal-content" class="modal-content">
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+
+{% block domready %}
+	$(document).on("click", ".technological_card-create", function() {
+		var url = "{% url 'technological_card:technological_card_create' %}"
+		$.ajax({
+			url: url,
+			type: 'GET',
+			success: function(data) {
+				$('#universalModal-content').html(data)
+				$('#universalModal').modal('show')
+			}
+		})
+	})
+
+	$(document).on("submit", "#technological_card-form", function() {
+		event.preventDefault()
+		$.ajax({ 
+			data: $(this).serialize(),
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(data) {
+				$('#technological_card-content').append(data)
+				$('#universalModal').modal('hide')
+			}
+		})
+	})
+
+	$(document).on("click", ".technological_card-delete", function() {
+		var url = $(this).data('url')
+		var _this = $(this)
+		var is_confirm = confirm("Подтвердите удаления!")
+		if(is_confirm){
+			$.ajax({ 
+				type: 'POST',
+				url: url,
+				success: function(data) {
+					if(data.status){
+						location.href = "{% url 'technological_card:consumable_in_tech_card' %}"
+					}
+				}
+			})
+		}
+	})
+
+	$(document).on("click", ".consumable-create", function() {
+		$.ajax({ 
+			type: 'GET',
+			url: "{% url 'technological_card:consumable_create' %}",
+			success: function(data) {
+				$('#consumable-content').addClass('d-none')
+				$('#consumable-form-content').removeClass('d-none')
+				$('#consumable-form-content').html(data)
+			}
+		})
+	})
+
+	$(document).on("click", ".consumable-update", function() {
+		var pk = $(this).data('id')
+		var url = "{% url 'technological_card:consumable_update' pk=0 %}".replace('0', pk)
+		$.ajax({ 
+			type: 'GET',
+			url: url,
+			success: function(data) {
+				$('#consumable-content').addClass('d-none')
+				$('#consumable-form-content').removeClass('d-none')
+				$('#consumable-form-content').html(data)
+			}
+		})
+	})
+
+	$(document).on("click", ".technological_card-create-cancel", function() {
+		event.preventDefault()
+		$('#consumable-form-content').html('').addClass('d-none')
+		$('#consumable-content').removeClass('d-none')
+	})
+
+	$(document).on("submit", "#consumable-form", function() {
+		event.preventDefault()
+		$.ajax({ 
+			data: $(this).serialize(),
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(data) {
+				location.reload()
+			}
+		})
+	})
+
+	$(document).on("click", ".service-delete", function() {
+		var url = $(this).data('url')
+		var _this = $(this)
+		var is_confirm = confirm("Подтвердите удаление!")
+		if(is_confirm){
+			$.ajax({ 
+				type: 'POST',
+				url: url,
+				success: function(data) {
+					if(data.status){
+						location.reload()
+					}
+				}
+			})
+		}
+	})    
+	{% endblock %}

@@ -1,0 +1,465 @@
+{% extends "base.html" %}
+{% load register_tags %}
+
+{% block content %}
+<div id="myToast" class="toast align-items-center text-white bg-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="d-flex">
+    <div class="toast-body">
+
+   </div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+</div>
+<input type="hidden" id="resource-type" value="user">
+	<input type="hidden" id="resource-val" value="">
+	<input type="hidden" id="resource-url" value="{% url 'register:users_resource' func_structure=func_structure.id %}">
+	<input type="hidden" id="event-url" value="{% url 'register:events_users' func_structure=func_structure.id %}">
+<div class="registration-content">
+	<div class="list-users">
+
+		<div class="tab-content" id="pills-tabContent">
+		  	<div class="tab-register tab-pane fade show active" id="users-list" role="tabpanel" aria-labelledby="users-list-tab">
+		  	{% for func_structure in func_structures %}
+				{% get_calendar_display_users func_structure.user_set as users %}
+					{% if users %}
+						<a class="dropdown-header dropdown-item"
+						   data-id="{{ func_structure.id }}" data-title="{{ func_structure.title }}">
+							{{ func_structure.title }}
+						</a>
+						{% for user in users %}
+							<a class="title-users dropdown-item select-user" href="#" data-id="{{ user.id }}"
+							   data-resource="user" data-title="{{ user.full_name }}">
+								&nbsp
+								- {{ user.full_name }}
+							</a>
+						{% endfor %}
+				{% endif %}
+			{% endfor %}
+		  	</div>
+			<div class="tab-register tab-pane fade" id="equipments-list" role="tabpanel" aria-labelledby="equipments-list-tab">
+				  {% for group_equipment in group_equipments %}
+				  	<a class="dropdown-header dropdown-item select-group-equipment" data-id="{{ group_equipment.id }}">
+						{{ group_equipment.title }}
+						{% for equipment in group_equipment.equipment_set.all %}
+							<a class="dropdown-item select-equipment" href="#" data-id="{{equipment.id}}" data-resource="equipment">
+								&nbsp
+								- {{equipment.title}}
+							</a>
+						{% endfor %}
+					</a>
+				  {% endfor %}
+			</div>
+		</div>
+	</div>
+	<div class="list-calendar">
+		<div class="row">
+            <div class="col-md-4 col-sm-6 col-xl-4 btn-group-left d-flex">
+              <div class="btn-group">
+                <button type="button" class="btn btn-col btn-sm" id="prev-time"><i class="fa fa-chevron-left"></i></button>
+                <button type="button" class="btn btn-col btn-sm" id="next-time"><i class="fa fa-chevron-right"></i></button>
+                &nbsp&nbsp&nbsp&nbsp
+                <button id="get-today" class="btn btn-sm btn-col">Сегодня </button>
+                &nbsp&nbsp&nbsp&nbsp
+                <span id="span-resource-title" class="span-resource-title">
+					{{ func_structure.title }}
+				</span>
+              </div>
+            </div>
+            <div class="col-md-4 text-center  col-xl-4 col-sm-12 btn-group-center">
+             	<span id="calendar-date"></span>
+            </div>
+            <div class="col-md-4 col-sm-6 col-xl-4  select-right text-end">
+              <select name="" id="mode" class="btn btn-col btn-sm" disabled>
+                <option value="daily">Ежедневно</option>
+                <option value="weekly">Еженедельно</option>
+              </select>
+            </div>
+        </div>
+		<div id="calendar" class="mt-2"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block modal %}
+	{% include "register/schedule/modal.html" %}
+{% endblock %}
+
+{% block domready %}
+    var calendarEl = document.getElementById('calendar')
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+    	schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
+	    initialView: 'resourceTimeGridDay',
+	    editable: true,
+      	slotDuration: '00:15',
+	    allDaySlot: false,
+	    locale: 'ru',
+	    nowIndicator: true,
+	    selectable: true,
+	    slotMinTime: '08:00',
+      	slotMaxTime: '21:00',
+      	firstDay: 1,
+	    dayMaxEvents: true,
+	    dayMinWidth: 100,
+	    headerToolbar: false,
+	  	eventTimeFormat: { // like '14:30:00'
+		    hour: '2-digit',
+		    minute: '2-digit',
+		    hour12: false
+		},
+		slotLabelFormat: {
+			hour: 'numeric',
+			minute: '2-digit',
+			omitZeroMinute: false,
+			hour12: false
+		},
+	    resources: function(fetchInfo, successCallback, failureCallback) {
+	    	var url = $('#resource-url').val()
+	    	$.ajax({
+		      	type: 'GET',
+		      	url: url,
+		      	success: function(data) {
+		      		successCallback(data)
+		      	}
+		    })
+
+		},
+		resourceLabelContent: function(info) {
+			resource = info.resource.extendedProps.resource
+			if(resource == 'user'){
+				var icon = 'fa-user-circle'
+			}
+			else{
+				var icon = 'fa-sitemap'
+			}
+			let  div = document.createElement("div")
+			div.innerHTML = ' ' + info.resource.title
+	  		div.classList.add("event-icon")
+	  		var i = document.createElement("i")
+	  		i.classList.add("fa", icon)
+	  		div.prepend(i)
+	  		let arrayOfDomNodes = [ div ]
+			return { domNodes: arrayOfDomNodes }
+		},
+	    events: function (info, callback) {
+	    	var url = $('#event-url').val()
+	    	var start_date = moment(info.start).format('YYYY-MM-DD')
+	    	var end_date = moment(info.end).format('YYYY-MM-DD')
+	    	$.ajax({
+		      	type: 'GET',
+		      	url: url,
+		      	data: {
+		      		start: start_date,
+		      		end: end_date
+		      	},
+		      	success: function(data) {
+		      		callback(data)
+		      	}
+		    })
+		},
+		eventClassNames: function(info) {
+			event_statuses = {
+				'0': 'status-waiting',
+				'1': 'status-came',
+				'2': 'status-not-come',
+				'3': 'status-confirmed'
+			}
+			props = info.event.extendedProps
+			var prop_status = props.status
+			status = event_statuses[prop_status]
+			return [ status ]
+		},
+	  	eventContent: function(info) {
+
+	  		event = info.event
+	  		if(event._instance){
+	  			_def = event._def
+		  		start_str = moment(event.startStr).format('HH:mm')
+		  		end_str = moment(event.endStr).format('HH:mm')
+		  		props = info.event.extendedProps
+				var event_content = document.createElement("div")
+			  	event_content.classList.add("event-content")
+			  	var content = '&nbsp' + _def.title + '<span class="pull-right">' + start_str + ' - ' + end_str + '</span>'
+			  	event_content.innerHTML = content
+		  		if(props.icon){
+			  		var i = document.createElement("i")
+			  		i.classList.add("fa", props.icon)
+			  		event_content.prepend(i)
+		  		}
+		  		let arrayOfDomNodes = [ event_content ]
+				return { domNodes: arrayOfDomNodes }
+	  		}
+
+	  	},
+	  	eventDrop:function(info){
+			if(confirm('Вы уверены, что хотите перенести запись ?')){
+				var id = info.event.id
+				var mode = $('#mode').val()
+				start_event = info.event.startStr
+				end_event = info.event.endStr
+				start_date = moment(start_event).format('YYYY-MM-DD')
+				start_time = moment(start_event).format('HH:mm:ss')
+				end_date = moment(end_event).format('YYYY-MM-DD')
+				end_time = moment(end_event).format('HH:mm:ss')
+				if(mode == 'weekly'){
+					var object_id = $('#resource-val').val()
+				}
+				else{
+					var object_id = info.event._def.resourceIds[0]
+				}
+				$.ajax({
+					type: 'POST',
+					url: "{% url 'register:schedule_timer_update' pk=0 %}".replace('0', id),
+					data: {
+						'start_date': start_date,
+						'start_time': start_time,
+						'end_date': end_date,
+						'end_time': end_time,
+						'object_id': object_id
+					},
+					success: function(data) {
+						if(resource_type == 'equipment'){
+							calendar.refetchEvents()
+						}
+					}
+				})
+			}
+			else{
+				calendar.refetchEvents()
+			}
+
+
+      	},
+      	select: function(info){
+      		var url = "{% url 'register:schedule_create' %}"
+		    schedule_form(url, info, true, false, false, true)
+
+  		},
+  		eventResize:function(info){
+  			var mode = $('#mode').val()
+  			var id = info.event.id
+  			start_event = info.event.startStr
+      		end_event = info.event.endStr
+      		start_date = moment(start_event).format('YYYY-MM-DD')
+			start_time = moment(start_event).format('HH:mm:ss')
+			end_date = moment(end_event).format('YYYY-MM-DD')
+			end_time = moment(end_event).format('HH:mm:ss')
+			if(mode == 'weekly'){
+      			var object_id = $('#resources').data('id')
+      		}
+      		else{
+      			var object_id = info.event._def.resourceIds [0]
+      		}
+			$.ajax({
+		      	type: 'POST',
+		      	url: "{% url 'register:schedule_timer_update' pk=0 %}".replace('0', id),
+		      	data: {
+		      		'start_date': start_date,
+		      		'start_time': start_time,
+		      		'end_date': end_date,
+		      		'end_time': end_time,
+		      		'object_id': object_id
+		      	}
+		    })
+  		},
+  		eventClick:function(info){
+  			var id = info.event.id
+  			var url = "{% url 'register:schedule_update' pk=0 %}".replace('0', id)
+		    schedule_form(url)
+  		}
+    });
+    calendar.render()
+
+	$("#myToast").toast({
+		delay: 1800
+	})
+
+    const  fp  =  $("#flatpickr-date").flatpickr({
+		inline: true,
+		altFormat: "d.m.Y",
+		dateFormat: "Y-m-d",
+		altInput: true,
+		defaultDate: "today",
+		locale: "ru",
+		altInputClass: "d-none",
+		monthSelectorType: "static",
+		onChange: function(selectedDates, dateStr, instance) {
+			calendar.gotoDate(dateStr)
+			$('#calendar-date').html(calendar.currentData.viewTitle)
+    	}
+	})
+
+	$(document).on("click", "#prev-time", function() {
+		calendar.prev()
+		var date = moment(calendar.getDate()).format('YYYY-MM-DD')
+		fp.setDate(date, true)
+	})
+
+
+	$(document).on("click", "#next-time", function() {
+		calendar.next()
+		var date = moment(calendar.getDate()).format('YYYY-MM-DD')
+		fp.setDate(date, true)
+	})
+
+    $('#calendar-date').html(calendar.currentData.viewTitle)
+
+    $(".select-user").click(function(){
+		var user = $(this).data('id')
+		var title = $(this).data('title')
+		var resource_url = "{% url 'register:user_resource' pk=0 %}".replace('0', user)
+		var events_url = "{% url 'register:user_events' pk=0 %}".replace('0', user)
+		resource_event_refetch(calendar, resource_url)
+		user_event_refetch(calendar, events_url)
+		$('#resource-type').val('user')
+		$('#resource-val').val(user)
+		calendar.changeView('timeGridWeek')
+		$('#mode').val('weekly').prop("disabled", false)
+		$('#span-resource-title').html(title)
+		$('#calendar-date').html(calendar.currentData.viewTitle)
+	})
+
+	$(".select-func_structure-user").click(function(){
+		var func_structure = $(this).data('id')
+		var title =  $(this).data('title')
+		$('#span-resource-title').html(title)
+		var resource_url = "{% url 'register:users_resource' func_structure=0 %}".replace('0', func_structure)
+		var events_url = "{% url 'register:events_users' func_structure=0 %}".replace('0', func_structure)
+		resource_event_refetch(calendar, resource_url)
+		user_event_refetch(calendar, events_url)
+		$('#resource-type').val('user')
+		$('#resource-val').val('')
+		calendar.changeView('resourceTimeGridDay')
+		$('#mode').val('daily').prop("disabled", true)
+		$('#calendar-date').html(calendar.currentData.viewTitle)
+	})
+
+	$(".select-equipment").click(function(){
+		var equipment = $(this).data('id')
+		var title =  $(this).data('title')
+		$('#span-resource-title').html(title)
+		var resource_url = "{% url 'register:equipment_resource' pk=0 %}".replace('0', equipment)
+		var events_url = "{% url 'register:equipment_events' pk=0 %}".replace('0', equipment)
+		resource_event_refetch(calendar, resource_url)
+		user_event_refetch(calendar, events_url)
+		$('#resource-type').val('equipment')
+		$('#resource-val').val(equipment)
+		calendar.changeView('timeGridWeek')
+		$('#mode').val('weekly').prop("disabled", false)
+		$('#calendar-date').html(calendar.currentData.viewTitle)
+	})
+
+	$(".select-group-equipment").click(function(){
+		var equipment_group = $(this).data('id')
+		var resource_url = "{% url 'register:equipments_resource' equipment_group=0 %}".replace('0', equipment_group)
+		var events_url = "{% url 'register:equipments_events' equipment_group=0 %}".replace('0', equipment_group)
+		resource_event_refetch(calendar, resource_url)
+		user_event_refetch(calendar, events_url)
+		$('#resource-type').val('equipment')
+		$('#resource-val').val('')
+		calendar.changeView('resourceTimeGridDay')
+		$('#mode').val('daily').prop("disabled", true)
+		$('#calendar-date').html(calendar.currentData.viewTitle)
+	})
+
+    $(document).on("change", "#mode", function() {
+		var mode = $(this).val()
+		var resource = $('#resource-val').val()
+		var resource_type = $('#resource-type').val()
+		if(mode == 'daily'){
+			calendar.changeView('resourceTimeGridDay')
+		}
+		else if(mode == 'weekly'){
+			if(resource && resource != '0'){
+	      		calendar.refetchResources()
+			}
+			else{
+				if(resource_type == 'user'){
+					var url = "{% url 'account:user_priority' %}"
+				}
+				else{
+					var url = "{% url 'account:equipment_priority' %}"
+				}
+				$.ajax({
+			      	url: url,
+			      	type: 'GET',
+			      	success: function(data) {
+			      		var element = $(".dropdown a[data-id='" + data.id +"'][data-resource='" + resource_type +"']").html()
+			      		$('#resource-val').val(data.id)
+			      		$('#dropdownMenuLink').html(element)
+			      		calendar.refetchResources()
+						calendar.refetchEvents()
+			      	}
+			    })
+			}
+			calendar.changeView('timeGridWeek')
+		}
+		$('#calendar-date').html(calendar.currentData.viewTitle)
+	})
+
+	$(document).on('click', '#schedule-delete', function(){
+    	var id = $(this).data('id')
+  		var url = "{% url 'register:schedule_delete' pk=0 %}".replace('0', id)
+  		if(confirm("Вы уверены ?  Это действие удалить текущее бронирование!")){
+  			$.ajax({
+		      	url: url,
+		      	type: 'POST',
+		      	success: function(data) {
+		      		$('#scheduleFormModal').modal('hide')
+		      		calendar.refetchEvents()
+					$("#myToast").toast("show").find('.toast-body').html('Запись отменена')
+		      	}
+		    })
+  		}
+	})
+
+
+	$(document).on('submit', '#schedule-form', function(e){
+		e.preventDefault()
+		var btn = $(this).find("[type=submit]:focus" )
+		var type = btn.data('type')
+		var form = $('#schedule-form')
+		$.ajax({
+	      	type: form.attr('method'),
+	      	url: form.attr('action'),
+	      	data: form.serialize(),
+	      	success: function(response) {
+	      		if(type == 'go-payment'){
+		      		if(response.status){
+		      			schedule = response.schedule
+		      			var url = "{% url 'cashier:accept_payment' schedule=0 %}".replace('0', schedule)
+		      			$.ajax({
+					      	type: "GET",
+					      	url: url,
+					      	data: {},
+					      	success: function(response) {
+					      		$('#main-content').html(response)
+					      	}
+					    })
+		      		}
+	      		}
+	      		else{
+	      			$('#scheduleFormModal').modal('hide')
+	      		}
+				$("#myToast").toast("show").find('.toast-body').html('Сохранен')
+	        	calendar.refetchEvents()
+	      	}
+	    });
+	})
+
+	$(document).on('click', '#get-today', function(e){
+		calendar.today()
+		var date = moment(calendar.getDate()).format('YYYY-MM-DD')
+		fp.setDate(date, true)
+	})
+
+	$(document).on('click', '#users-list-tab', function(e){
+		$('.select-func_structure-user:first-child').click()
+	})
+
+	$(document).on('click', '#equipments-list-tab', function(e){
+		$('.select-group-equipment:first-child').click()
+	})
+
+
+
+{% endblock %}

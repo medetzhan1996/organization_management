@@ -1,0 +1,20 @@
+{% load form_tags %}
+{% for ready_phrase in ready_phrases %}
+ы
+		<div class="d-flex mb-3 justify-content-between">
+			<div class="">
+				{% display_symbol '-' ready_phrase.level %}
+				{{ ready_phrase.phrase }}
+			</div>
+			<div class="btn-group pull-right">
+                <button type="button" class="btn btn-col btn-sm edit-ready-phrase" data-id="{{ ready_phrase.id }}">
+					Редактировать
+				</button>
+                <button type="button" class="btn btn-col btn-sm delete-ready-phrase" data-id="{{ ready_phrase.id }}">
+					Удалить
+				</button>
+              </div>
+		<!-- 	<span data-id="{{ ready_phrase.id }}" class="edit-ready-phrase pull-right">Редактировать</span>
+			<span data-id="{{ ready_phrase.id }}" class="delete-ready-phrase pull-right">Удалить</span> -->
+		</div>
+{% endfor %}

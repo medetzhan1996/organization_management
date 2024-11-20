@@ -1,0 +1,6 @@
+{% for storage in storages %}
+    <p>
+    	{{storage.title}}
+    	<span class="pull-right red storage-good-delete" data-url="{% url 'warehouse:storage_delete' pk=storage.id %}">x</span>
+    </p>
+{% endfor %}

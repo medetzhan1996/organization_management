@@ -1,0 +1,3 @@
+<h6 class="mb-2">Данные клиента</h6>
+Визитов {{ customer.schedule_set.count }} <br>
+Последний визит <b>{{ customer.schedule_set.last.start_datetime|date:"d.m.Y"  }}</b>

@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="container">
+		<br><br>
+		<div class="row">
+			<div class="col-md-3">
+				<h5>
+					Склады
+					<button class="btn btn-info btn-sm pull-right myModal-open" data-url="{% url 'warehouse:storage_create' %}" data-form_id="storage-create">+</button>
+				</h5>
+				<div id="storage-good-list-content">
+					{% include "warehouse/storage/list.html" %}
+				</div>
+			</div>
+			<div class="col-md-1">
+			</div>
+			<div class="col-md-8">
+				<div id="good-storage-list">
+					<h5>
+						Все товары
+						<button class="btn btn-info btn-sm pull-right create good-storage-create" data-url="{% url 'warehouse:good_storage_create' %}">+ Добавить товар</button>
+					</h5>
+					<div id="good-storage-list-content">
+						{% include "warehouse/storage_good/list.html" %}
+					</div>
+				</div>
+				<div>
+					<form action="" method="POST" id="good-storage-form" class="d-none">
+						{% csrf_token %}
+						<div>
+							<button class="btn btn-primary">Сохранить</button>
+							<button class="btn btn-default good-storage-create-cancel">Отменить</button>
+						</div>
+						<div>
+							<br>
+							<div  id="good-storage-form-content">
+								
+							</div>
+							
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block modal %}
+	<div class="modal" id="myModal">
+	  	<div class="modal-dialog">
+		    <div class="modal-content">
+		    	<form action="" method="POST" id="myModal-form">
+		    		{% csrf_token %}
+			      	<div class="modal-header">
+			        	<h4 class="modal-title"></h4>
+			        	<button type="button" class="close" data-dismiss="modal">&times;</button>
+			      	</div>
+
+			      	<div class="modal-body" id="myModal-content">
+			      	</div>
+
+			      	<div class="modal-footer">
+			      		<button type="submit" class="btn btn-success" >Сохранить</button>
+			        	<button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+			      	</div>
+		      	</form>
+		    </div>
+	  	</div>
+	</div>
+{% endblock %}
+
+{% block domready %}
+	$(document).on("click", ".myModal-open", function() {
+		var url = $(this).data('url')
+		var form_id = $(this).data('form_id')
+		$.ajax({
+	      	url: url,
+	      	type: 'GET',
+	      	success: function(data) {
+	      		$('#myModal').find('form').attr('action', url).attr('id', form_id)
+	      		$('#myModal').find('.modal-title').html('Добавить категорию')
+	      		$('#myModal-content').html(data)
+	      		$('#myModal').modal('show')
+	      	}
+	    })
+	})
+
+	$(document).on("submit", "#storage-create", function() {
+      	event.preventDefault()
+      	$.ajax({ 
+          	data: $(this).serialize(),
+          	type: $(this).attr('method'),
+          	url: $(this).attr('action'),
+          	success: function(data) {
+          	    if(data.status){
+          	    	$.ajax({ 
+			          	type: 'GET',
+			          	url: "{% url 'warehouse:storage_list' %}",
+			          	success: function(data) {
+			          		$('#myModal').modal('hide')
+			          	    $('#storage-good-list-content').html(data)
+			          	}
+			      	})
+          		}
+          	}
+      	})
+    })
+
+    $(document).on("click", ".storage-good-delete", function() {
+    	var url = $(this).data('url')
+    	var _this = $(this)
+    	var is_confirm = confirm("Подтвердите удаление!")
+    	if(is_confirm){
+    		$.ajax({ 
+	          	type: 'POST',
+	          	url: url,
+	          	success: function(data) {
+	          		if(data.status){
+	          			_this.closest('p').remove()
+	          		}
+	          	}
+	      	})
+    	}
+	})
+
+	$(document).on("click", ".good-storage-create", function() {
+		var url = $(this).data('url')
+		$('#good-storage-list').addClass('d-none')
+		$('#good-storage-form').attr('action', url)
+		$.ajax({ 
+          	type: 'GET',
+          	url: "{% url 'warehouse:good_storage_create' %}",
+          	success: function(data) {
+          		$('#good-storage-form').removeClass('d-none')
+          		$('#good-storage-form-content').html(data)
+          	}
+      	})
+	})
+
+	$(document).on("click", ".good-storage-create-cancel", function() {
+		event.preventDefault()
+		$('#good-storage-form-content').html('')
+		$('#good-storage-form').addClass('d-none')
+		$('#good-storage-list').removeClass('d-none')
+	})
+
+	$(document).on("click", ".good-storage-update", function() {
+		var url = $(this).data('url')
+		$('#good-storage-list').addClass('d-none')
+		$('#good-storage-form').attr('action', url)
+		$.ajax({ 
+          	type: 'GET',
+          	url: url,
+          	success: function(data) {
+          		$('#good-storage-form').removeClass('d-none')
+          		$('#good-storage-form-content').html(data)
+          	}
+      	})
+	})
+
+	$(document).on("submit", "#good-storage-form", function() {
+		event.preventDefault()
+		$.ajax({ 
+          	data: $(this).serialize(),
+          	type: $(this).attr('method'),
+          	url: $(this).attr('action'),
+          	success: function(data) {
+          	    if(data.status){
+          			$.ajax({ 
+			          	type: 'GET',
+			          	url: "{% url 'warehouse:good_storage_list' %}",
+			          	success: function(data) {
+			          		$('#good-storage-list-content').html(data)
+			          		$('#good-storage-form').addClass('d-none')
+          					$('#good-storage-form-content').html('')
+          					$('#good-storage-list').removeClass('d-none')
+			          	}
+			      	})
+          		}
+          	}
+      	})
+	})
+
+	$(document).on("click", ".good-storage-delete", function() {
+    	var url = $(this).data('url')
+    	var _this = $(this)
+    	var is_confirm = confirm("Подтвердите удаление!")
+    	if(is_confirm){
+    		$.ajax({ 
+	          	type: 'POST',
+	          	url: url,
+	          	success: function(data) {
+	          		if(data.status){
+	          			_this.closest('p').remove()
+	          		}
+	          	}
+	      	})
+    	}
+	}) 
+
+{% endblock %}

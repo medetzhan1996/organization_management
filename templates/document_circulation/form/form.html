@@ -1,0 +1,254 @@
+{% load form_tags %}
+<style>
+  body{
+    overflow: auto;
+  }
+</style>
+<form action="" method="POST" id="save_form">
+{% csrf_token %}
+<div class="row">
+  <div class="col-md-8 mb-3">
+    <div class="card card-dashboard-one ">
+      <div class="card-header">
+        <div class="az-dashboard-nav az-dashboard-nav-forma"> 
+          <nav class="w-100">
+            <button type="submit" class="btn btn-sm btn-success" style="color: white" name="status" value="1">
+              <i class="fa fa-save"></i> &nbspСохранить pdf
+            </button>
+            &nbsp&nbsp&nbsp
+            <button type="submit" class="btn btn-sm btn-primary" style="color: white" name="status" value="3">
+              <i class="fa fa-save"></i> &nbspНезавершенная форма
+            </button>
+            {% if history %}
+                <i class="fa fa-trash mt-1 delete-history pull-right" data-id="{{history.id}}" title="Удалить форму"></i>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+
+      <div class="card-body p-0 ">
+        <table class="table_write table table-fixed table-bordered">
+          <tbody>
+            {% for row in history.form.get_rows %}
+
+              {% if forloop.counter == 5 and  insurances.customer_insurance %}
+
+                <tr>
+                  <td colspan="12">
+                    Выберите карту *:
+                    {% for customer_insurance in insurances.customer_insurance %}
+                      <input type="radio" name="card_number" value="{{ customer_insurance.card_number }}"> {{ customer_insurance.card_number }}
+                      [{{ customer_insurance.insurance }}] &nbsp&nbsp&nbsp&nbsp
+                    {% endfor %}
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="4">
+                    Основной диагноз (МКБ-10) *:
+                    <input type="text" name="icd" id="id_icd" class="form-control" required>
+                  </td>
+                  <td colspan="4">
+                    Тип оплаты: *
+                    <select name="type_appeal" id="id_type_appeal" class="form-control" required>
+                      <option value="">-----------</option>
+                      <option value="1">ОМС/ДМС перестраховочные</option>
+                      <option value="2">ДМС корпоративный</option>
+                      <option value="2">ДМС индивидуальный</option>
+                    </select>
+                  </td>
+                  <td colspan="4">
+                    Вид услуг: *
+                    <select name="place" id="id_place" class="form-control" required>
+                      <option value="">-----------</option>
+                      <option value="2">На дому</option>
+                      <option value="3">Амбулаторно</option>
+                      <option value="4">Стационарно</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="12">
+                    Покрываемые услуги *:
+                    <select name="usluga" id="id_usluga"  class="form-control" required></select>
+                  </td>
+                </tr>
+              {% endif %}
+              <tr>
+                {% for marker in row.get_markers %}
+                <td colspan="{{marker.colspan}}" class="{% text_center marker.is_center %}">
+                  {% get_adaptivemarker marker as adaptive_marker %}
+                  {%  get_history_data marker history as history_data %}
+                  {% relation_create marker.id adaptive_marker.kind as relation_create %}
+                  {% audio_input marker.id as audio_input %}
+                  <span class="{% text_bold  marker.is_bold %}">
+                    {% if adaptive_marker.label %}
+                      {{ adaptive_marker.label|default:""|safe }}
+                    {% else %}
+                      {{ marker.label|default_if_none:""|safe }}
+                    {% endif %}
+                  </span>
+                  {% if adaptive_marker.kind == 'text'  %}
+                    <span id="{{marker.name}}" data-marker="{{marker.id}}" {{history_data.is_contenteditable}}>{{history_data.data|default_if_none:''}}</span>
+                    <input type="hidden" name="{{marker.name}}" id="{{marker.id}}" value="{{history_data.data|default_if_none:''}}">
+                    {{ relation_create|safe }}
+                    {{ audio_input|safe }}
+                    {% elif  adaptive_marker.kind == 'textarea' %}
+                    <span id="{{marker.name}}" data-marker="{{marker.id}}" {{history_data.is_contenteditable}}>{{history_data.data|default_if_none:''}}</span>
+                    <input type="hidden" name="{{marker.name}}" id="{{marker.id}}" value="{{history_data.data|default_if_none:''}}">
+                    {{ relation_create|safe }}
+                    {{ audio_input|safe }}
+                    {% elif  adaptive_marker.kind == 'select_old' %}
+                    {% json_load marker.options as options %}
+                    <select name="{{marker.name}}" class="border-none">
+                      {% for option in options %}
+                        <option value="{{ option }}" {% get_selected_option option history_data.data %}>
+                          {{option}}
+                        </option>
+                      {% endfor %}
+                    </select>
+                    {{relation_create|safe}}
+                  {% elif  adaptive_marker.kind == 'parent' %}
+                    {% if history_data.data %}
+                    {% get_data history_data.data as data %}
+                    {% else %}
+                    {% get_relation_form_data customer adaptive_marker history as data %}
+                    {% endif %}
+                    <span {{history_data.is_contenteditable}} id="{{ marker.name }}" data-marker="{{marker.id}}" >{{data}}</span>
+                    <input type="hidden" name="{{marker.name}}" id="{{ marker.id }}" value="{{history_data.data|default_if_none:''}}">
+                   <!--  <button type="button" class="pull-right remove-relation" data-id="{{adaptive_marker.id}}"><i class="fa fa-trash" title="Удалить интервал"></i></button> -->
+                   <span class="fz-14 pull-right remove-relation" data-id="{{adaptive_marker.id}}"> <i class="fa fa-trash" title="Удалить связанную форму"></i> </span>
+                  {% elif  adaptive_marker.kind == 'customer' %}
+                    {% if adaptive_marker.name == 'iin' %}
+                      {{ customer.iin|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'birthday' %}
+                      {{ customer.date_birth|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'address' %}
+                      {{ customer.address|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'job' %}
+                      {{ customer.address|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'full_name' %}
+                      {{ customer.name|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'sex' %}
+                      {{ customer.get_gender_display|default_if_none:'---' }}
+                    {% endif %}
+                    <input type="hidden" name="{{marker.name}}" value="{{history_data.data|default_if_none:''}}">
+                  {% elif  adaptive_marker.kind == 'doctor' %}
+                    {% if adaptive_marker.name == 'fio' %}
+                      {{ request.user.full_name|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'organization' %}
+                      {{ request.user.company.title|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'department' %}
+                      {{ request.user.func_structure.title|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'specialist' %}
+                      {{ request.user.speciality.title|default_if_none:'---' }}
+                    {% elif adaptive_marker.name == 'address_mo' %}
+                      {{ request.user.company.address|default_if_none:'---' }}
+                    {% endif %}
+                  {% elif  adaptive_marker.kind == 'datalist' or adaptive_marker.kind == 'select' %}
+                    {% json_load marker.options as options %}
+                    <span {{history_data.is_contenteditable}} data-marker="{{marker.id}}" id="{{marker.name}}">{{history_data.data|default_if_none:''}}</span>
+                    <input type="hidden" id="{{marker.id}}" name="{{marker.name}}" value="{{history_data.data|default_if_none:''}}">
+                    <span class="dropdown">
+                      <label id="dropdownMenuButton2" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <label class="caret"></label>
+                      </label>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                        {% for option in options %}
+                          <li class="datalist-val" data-id="{{marker.id}}">
+                            <a class="tx-14 dropdown-item select-datalist">{{option}}</a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </span>
+                    {{ relation_create|safe }}
+                    {{ audio_input|safe }}
+                  {% elif  adaptive_marker.kind == 'checkbox' %}
+                    {% json_load marker.options as options %}
+                    {% for key, option in options.items %}
+                      <input type="checkbox" data-key="{{key}}" name="{{marker.name}}" {% is_checked option history_data.data %} {{disabled}} value="{{option|default:key}}"/>
+                      {{option|default_if_none:''}}
+                    {% endfor %}
+                    {% elif  adaptive_marker.kind == 'radio' %}
+                      {% json_load marker.options as options %}
+                    {% for key, option in options.items %}
+                        <input type="radio" data-key="{{key}}" name="{{marker.name}}" {% is_checked option history_data.data %} {{disabled}} value="{{option|default:key}}"/>
+                      {{option|default_if_none:''}}
+                    {% endfor %}
+                  {% elif  adaptive_marker.kind == 'nowdate' %}
+                    <input type="date" name="{{marker.name}}" id="{{marker.id}}" class="form_dater" value="{{history_data.data|default_if_none:''}}" {{disabled}}>
+                  {% elif  adaptive_marker.kind == 'currentDate' %}
+                    <input type="date" name="{{marker.name}}" id="{{marker.id}}" class="form_dater" value="{{history_data.data|default_if_none:''}}" {{disabled}}>
+                  {% elif  adaptive_marker.kind == 'time' %}
+                    <input type="time" name="{{marker.name}}" id="{{marker.id}}" class="form_time" value="{{history_data.data|default_if_none:''}}" {{disabled}}>
+                  {% elif  adaptive_marker.kind == 'currentTime' %}
+                    <input type="time" name="{{marker.name}}" id="{{marker.id}}" class="form_time" value="{{history_data.data|default_if_none:''}}" {{disabled}}>
+                  {% elif  adaptive_marker.kind == 'mkb10' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.id}}" data-marker="{{marker.id}}" class="form-control fz-14 border-none fixed-ready_phrase" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." readonly title="Выберите из шаблона">
+                  {% elif  adaptive_marker.kind == 'drugs' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="drugs border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="...........">
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% elif  adaptive_marker.kind == 'mkb9' %}
+                    <input type="text" name="{{marker.name}}" id="{{ marker.name }}" data-id="{{marker.id}}" list="{{marker.id}}" class="mkb9 border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% elif  adaptive_marker.kind == 'profile_bunk' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="profile_bunk border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% elif  adaptive_marker.kind == 'scheme_chemotherapy' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="scheme_chemotherapy border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% elif  adaptive_marker.kind == 'morphological_type' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="morphological_type border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% elif  adaptive_marker.kind == 'postoperative_complication' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="postoperative_complication border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% elif  adaptive_marker.kind == 'departments' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="departments border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% elif  adaptive_marker.kind == 'doctors' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="doctors border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% elif  adaptive_marker.kind == 'services' %}
+                    <input type="text" name="{{marker.name}}" id="{{marker.name}}" data-id="{{marker.id}}" list="{{marker.id}}" class="services border-none" value="{{history_data.data|default_if_none:''}}" {{disabled}} placeholder="..........." >
+                    <datalist id="{{marker.id}}">
+                    </datalist>
+                  {% endif %}
+                </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card card-dashboard-one ">
+      <div class="card-body ">
+        <div class="disease-history">
+          <div class="input-group mb-2 mt-2">
+            <input type="text" class="form-control" id="ready-phrase-search" placeholder="..." aria-label="Recipient's username" aria-describedby="button-addon2">
+            <button class="btn btn-primary" type="button" id="ready-phrase-button">Поиск шаблона</button>
+          </div>
+          <div id="tree-content" class="ready_phrase" data-url="' + url + '" data-schedule="{{ schedule.id }}"></div>
+          <button type="button" id="setting-ready-phrase" class="btn btn-primary btn-sm btn-new-crete">Настроить готовый шаблон</button>
+        </div>
+      </div>
+      <div class="card-body ">
+        {% for package in packages %}
+          {{package.title}}<br>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+</form>

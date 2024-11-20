@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="row">
+    			<div class="col-md-4 mb-3">
+    				<div class="card card-dashboard-one">
+    					<h5 class="card-title"><i><i class="fa fa-wrench ml-2 mr-2" aria-hidden="true"></i></i>Настройки записи</h5>
+    					<ul class="settings-ul">
+    						<li><a href="{% url 'service_system:service_in_category' %}">Услуги</a></li>
+    						<li><a href="#">Ресурсы</a></li>
+    					</ul>
+    				</div>
+    			</div>
+    			<div class="col-md-4 mb-3">
+    				<div class="card card-dashboard-one">
+    					<h5 class="card-title"><i><i class="fa fa-wrench ml-2 mr-2" aria-hidden="true"></i></i> Склад</h5>
+    					<ul class="settings-ul">
+    						<li><a href="">Настройки склада</a></li>
+    						<li><a href="{% url 'warehouse:good_in_category' %}">Товар</a></li>
+                            <li><a href="{% url 'technological_card:consumable_in_tech_card' %}">Технологическая карта</a></li>
+                            
+    					</ul>
+    				</div>
+    			</div>
+{% endblock %}

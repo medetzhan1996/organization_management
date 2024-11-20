@@ -1,0 +1,17 @@
+<div class="">
+	<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+		<h5>Добавить новый товар</h5>
+	</div>
+	<div class="list-content">
+		<form action="{% url 'warehouse:good_create' %}" method="POST" id="good-form">
+			
+			<div>
+				{% include "warehouse/good/form.html" %}
+			</div>
+			<div>
+				<button class="btn btn-primary">Сохранить</button>
+				<button class="btn btn-danger good-create-cancel">Отменить</button>
+			</div>
+		</form>
+	</div>
+</div>

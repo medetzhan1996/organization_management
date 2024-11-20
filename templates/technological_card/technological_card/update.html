@@ -1,0 +1,22 @@
+<div class="">
+	<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+		<h5>
+			<span class="technological_card-create-cancel"> < </span>
+			Обновить существующую тех. карту
+
+		</h5>
+		<span style="color: red;" class="technological_card-delete" data-url="{% url 'technological_card:technological_card_delete' pk=technological_card.id %}">Удалить текущую услугу</span>
+	</div>
+	<div class="list-content">
+		<form action="{% url 'technological_card:technological_card_update' pk=technological_card.id %}" method="POST" id="technological_card-form">
+			
+			<div>
+				{% include "technological_card/technological_card/form.html" %}
+			</div>
+			<div>
+				<button class="btn btn-primary">Обновить тех. карту</button>
+				<button class="btn btn-danger technological_card_update-create-cancel">Отменить</button>
+			</div>
+		</form>
+	</div>
+</div>

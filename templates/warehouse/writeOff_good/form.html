@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="container formset">
+		<form action="" method="POST">
+			{% csrf_token %}
+			Склад <br>
+			{{ form.storage }} <br>
+			Тип операции <br>
+			{{ form.type_operation }} <br>
+			{{ storage_operation_good_formset.management_form }}
+			<h3>Список товаров</h3>
+		    <div class="formset-forms">
+		    	<div class="row">
+			    	<div class="col-md-5">
+			    		Товар
+			    	</div>
+			    	<div class="col-md-5">
+			    		Количество
+			    	</div>
+			    	<div class="col-md-2">
+			    		+ / -
+			    	</div>
+		    	</div>
+		    	  
+		        {% for formset_form in storage_operation_good_formset %}
+		            <div class="formset-form row">
+		            	<div class="col-md-5">
+		                	{{formset_form.good}}
+		                </div>
+		                <div class="col-md-5">
+		                	{{formset_form.quantity}}
+		                </div>
+		                <div class="col-md-2 delete-content">
+		                	{{formset_form.DELETE}}
+		                </div>
+		            </div>
+		        {% endfor %}
+		    </div>
+		    <button type="button" class="btn btn-primary btn-sm  add-good-formset">+ Добавить новый товар</button>
+		     
+		    <div class="empty-form d-none row">
+		    	<div class="col-md-5">
+		        	{{storage_operation_good_formset.empty_form.good}}
+		        </div>
+		        <div class="col-md-5">
+		        	{{storage_operation_good_formset.empty_form.quantity}}
+		        </div>
+		        <div class="col-md-2 delete-content">
+		        	{{storage_operation_good_formset.empty_form.DELETE}}
+		        </div>
+		    </div>
+		    <br> <br>
+		    <input type="submit" name="">
+	    </form>
+	</div>
+{% endblock %}

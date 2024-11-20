@@ -1,0 +1,87 @@
+{% load register_tags %}
+<table class="table table-bordered">
+	<tr>
+		<td width="160px" >
+			Понедельник
+		</td>
+		<td id="week-0-content">
+			{% get_week_time work_time_week 0 as work_time %}
+			{% include "register/work_time/day_list.html" %}
+		</td>
+		<td>
+			<button class="add-time" data-week="0">+</button>
+		</td>
+	</tr>
+	<tr>
+		<td width="10px">
+			Вторник
+		</td>
+		<td id="week-1-content">
+			{% get_week_time work_time_week 1 as work_time %}
+			{% include "register/work_time/day_list.html" %}
+		</td>
+		<td>
+			<button class="add-time" data-week="1">+</button>
+		</td>
+	</tr>
+	<tr>
+		<td width="10px">
+			Среда
+		</td>
+		<td id="week-2-content">
+			{% get_week_time work_time_week 2 as work_time %}
+			{% include "register/work_time/day_list.html" %}
+		</td>
+		<td>
+			<button class="add-time" data-week="2">+</button>
+		</td>
+	</tr>
+	<tr>
+		<td width="10px">
+			Четверг
+		</td>
+		<td id="week-3-content">
+			{% get_week_time work_time_week 3 as work_time %}
+			{% include "register/work_time/day_list.html" %}
+		</td>
+		<td>
+			<button class="add-time" data-week="3">+</button>
+		</td>
+	</tr>
+	<tr>
+		<td width="10px">
+			Пятница
+		</td>
+		<td id="week-4-content">
+			{% get_week_time work_time_week 4 as work_time %}
+			{% include "register/work_time/day_list.html" %}
+		</td>
+		<td>
+			<button class="add-time" data-week="4">+</button>
+		</td>
+	</tr>
+	<tr>
+		<td width="10px">
+			Суббота
+		</td>
+		<td id="week-5-content">
+			{% get_week_time work_time_week 5 as work_time %}
+			{% include "register/work_time/day_list.html" %}
+		</td>
+		<td>
+			<button class="add-time" data-week="5">+</button>
+		</td>
+	</tr>
+	<tr>
+		<td width="10px">
+			Воскресенье
+		</td>
+		<td id="week-6-content">
+			{% get_week_time work_time_week 6 as work_time %}
+			{% include "register/work_time/day_list.html" %}
+		</td>
+		<td>
+			<button class="add-time" data-week="6">+</button>
+		</td>
+	</tr>
+</table>

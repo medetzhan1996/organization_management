@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load register_tags %}
+{% block content %}
+<div class="form-control">
+	<div class="col-md-12">
+		<form action="" method="GET">
+			<select name="user" id="id_user">
+				<option selected="true" disabled="disabled">Выберите пользователя</option>
+				{% for user in users %}
+					<option value="{{user.id}}" {% is_selected user.id request.GET.user %}>{{user.username}}</option>
+				{% endfor %}
+			</select>
+		</form>
+	</div>
+	<br><br>
+	{% if request.GET.user %}
+		<div class="row">
+			<div class="col-md-6">
+				<h5>График работы</h5>
+				{% include "register/work_time/week_list.html" %}
+			</div>
+			<div class="col-md-6">
+				<h5>
+					Исключения
+					<button class="btn btn-xs btn-success" id="user-worktime-exclution">+</button>
+				</h5>
+				{% include "register/work_time_exclution/list.html" %}
+			</div>
+		</div>
+	{% else %}
+		Выберите пользователя
+	{% endif %}
+</div>
+{% endblock %}
+
+{% block modal %}
+	<div class="modal fade" id="userWorktimeExclution" tabindex="-1" role="dialog" aria-labelledby="userWorktimeExclution" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content" id="modal-content">
+	    	
+	    </div>
+	  </div>
+	</div>
+{% endblock %}
+
+{% block domready %}
+	function get_work_time_list(week, user){
+		$.ajax({
+	      	url: "{% url 'register:work_time_list' %}",
+	      	type: 'GET',
+	      	data: {
+	      		week: week,
+	      		user: user
+	      	},
+	      	success: function(data) {
+	      		var id = '#week-'+week+'-content'
+	      		$(id).html(data)
+	      	}
+	    })
+	}
+	
+
+	$(document).on("click", ".add-time", function() {
+		var week = $(this).data('week')
+		var user = $('#id_user').val()
+		$.ajax({
+	      	url: "{% url 'register:work_time_create' %}",
+	      	type: 'POST',
+	      	data: {
+	      		week: week,
+	      		user: user
+	      	},
+	      	success: function(data) {
+	      		get_work_time_list(week, user)
+	      	}
+	    })
+	})
+
+	$(document).on("click", "#user-worktime-exclution", function() {
+		$.ajax({
+	      	url: "{% url 'register:work_time_exclution_create' %}",
+	      	type: 'GET',
+	      	data: {
+	      	},
+	      	success: function(data) {
+	      		$('#modal-content').html(data)
+	      		$('#userWorktimeExclution').modal('show')
+	      		$("#exclution-date").flatpickr({
+	      			mode: "multiple",
+					dateFormat: "Y-m-d",
+	      			minDate: "today",
+					inline: true,
+					altInput: true,
+					locale: "ru",
+					onChange: function(selectedDates, dateStr, instance) {
+						$('#exclution-content').removeClass('d-none')
+						var exclution_time = $('#exclution-time-hidden').html()
+				        $('#exclution-time-content').html(exclution_time)
+				        $("#exclution-content select[name='end_time']:first").val('17:00')
+				    },
+				});
+	      	}
+	    })
+	})
+
+	$(document).on("click", ".work-time-delete", function() {
+		var pk = $(this).data('id')
+		var _this = $(this)
+		$.ajax({
+	      	url: "{% url 'register:work_time_delete' pk='0' %}".replace(0, pk),
+	      	type: 'POST',
+	      	data: {
+	      		pk: pk
+	      	},
+	      	success: function(data) {
+	      		_this.closest('.day-work-time-content').remove()
+	      	}
+	    })
+	})
+
+	$(document).on("change", ".time-selectize", function() {
+		var pk = $(this).data('id')
+		var user = $('#id_user').val()
+		var week = $(this).closest('tr').find('.add-time').data('week')
+		var start_time = $(".start-time[data-id='" + pk +"']").val()
+		var end_time = $(".end-time[data-id='" + pk +"']").val()
+		if(start_time < end_time){
+			$.ajax({
+		      	url: "{% url 'register:work_time_update' pk='0' %}".replace(0, pk),
+		      	type: 'POST',
+		      	data: {
+		      		start_time: start_time,
+		      		end_time: end_time
+		      	},
+		      	success: function(data) {
+		      		get_work_time_list(week, user)
+		      	}
+		    })
+		}
+	})
+
+	$(document).on("submit", "#work-time-exclution", function() {
+		event.preventDefault()
+		var form = $('#work-time-exclution')
+		var user = $('#id_user').val()
+		var data = form.serializeArray()
+		data.push({name:'user', value:user})
+		$.ajax({
+	      	type: form.attr('method'),
+	      	url: form.attr('action'),
+	      	data: data,
+	      	success: function(data) {
+	      		location.reload()
+	      	}
+	    })
+	})
+	
+
+	$(document).on("change", "#id_user", function() {
+		$(this).closest('form').submit()
+	})
+
+	$(document).on("click", "#add-exclution-time", function() {
+		var last_exclution_time = $("#exclution-content select[name='end_time']:last option:selected")
+		var start_time = last_exclution_time.next().html()
+		var end_time = last_exclution_time.next().next().html()
+		var exclution_time = $('#exclution-time-hidden').html()
+        var end_time_check = $("#exclution-content select[name='end_time']:has(option[value='"+end_time+"'])")
+        var start_time_check = $("#exclution-content select[name='start_time']:has(option[value='"+end_time+"'])")
+        if(end_time_check.length > 0 && start_time_check.length > 0){
+        	$('#exclution-time-content').append(exclution_time)
+        	$("#exclution-content select[name='start_time']:last").val(start_time)
+        	$("#exclution-content select[name='end_time']:last").val(end_time)
+    	}
+        
+
+	})
+	
+
+{% endblock %}

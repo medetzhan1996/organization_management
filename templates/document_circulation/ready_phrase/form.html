@@ -1,0 +1,11 @@
+{% load widget_tweaks %}
+{% load form_tags %}
+<div class="form-group">
+	<label for="email">Родительский шаблон:</label>
+	{{ form.parent|add_class:"form-control" }}
+</div>
+<div class="form-group">
+	<label for="pwd">Текст готового шаблона:</label>
+	{{ form.phrase|add_class:"form-control" }}
+	{{ form.marker }}
+</div>

@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% block title %}
+  From {{ form.id }} {{ block.super }}
+{% endblock %}
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Главная</a> &rsaquo;
+    <a href="/admin/document_circulation/">Document_Circulation</a> &rsaquo;
+    <a href="/admin/document_circulation/form/">Forms</a> &rsaquo;
+    {{ form.title }}
+  </div>
+{% endblock %}
+{% block content %}
+  <div class="module">
+  <h2>{{ form.title }}</h2>
+  <table class="table-bordered" style="width:100%">
+    <tbody>
+    {% for row in form.rows.all %}
+      <tr class="total">
+        {% for marker in row.markers.all %}
+          <td colspan="{{ marker.colspan }}">
+            {{marker.label|safe}}
+          </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

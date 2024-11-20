@@ -1,0 +1,6 @@
+<li class="d-flex align-items-center justify-content-between {% if active_category == category %} active  {% endif %}">
+	<a href="{% url 'service_system:service_in_category' category=category.id %}">
+		<i class="fa fa-book ml-2 mr-2" aria-hidden="true"></i>
+		{{category.title}}
+	</a>
+</li>

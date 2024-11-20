@@ -1,0 +1,17 @@
+<div class="modal-header">
+  <h4 class="modal-title">Форма</h4>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+  {% for form in forms %}
+		<div class="scroll">
+			{% url 'document_circulation:form_create' schedule.id form.id as form_url %}
+			<a href="{{form_url}}" class="choose-form" data-url="{{form_url}}">{{form.title}}</a>
+		</div>
+	{% endfor %}
+	<form method="POST" id="choose-form-submit" action="{{ form_url }}">
+		{% csrf_token %}
+		<input type="hidden" name="status" value="3">
+	</form>
+</div>

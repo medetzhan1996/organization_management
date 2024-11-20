@@ -1,0 +1,186 @@
+	{% extends "base.html" %}
+
+	{% block content %}
+	<style type="text/css">
+		.content{
+			padding-top: 0;
+		}
+		.container-fluid{
+			padding-right:0;
+			padding-left: 0;
+		}
+	</style>
+	<div class="">
+		<div class="card-body p-r-l-20-p-t-b-0">
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-12 margin-left-20px">
+					<div class="content-catagory">
+						<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+							<h5>Категории</h5>
+							<button class="btn btn-col btn-sm category-create">
+								<b>+</b>
+							</button>
+						</div>
+						<div class="list-content">
+							<ul id="category-service-content" class="list-nav">
+								<li class=" d-flex align-items-center justify-content-between
+									{% if not active_category %} active  {% endif %}">
+									<a href="{% url 'service_system:service_in_category' %}">Все услуги</a>
+								</li>
+								{% for category in categories %}
+									{% include "new/service_system/category_service/list.html" %}
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="service-content" class="col-lg-8 col-md-8 right-block">
+					<div class="">
+						<div class="tile-and-btn d-flex align-items-center justify-content-between pt-4">
+							<h5>
+								{% if active_category %}
+									{{ active_category.title }}
+								{% else %}
+									Все услуги
+								{% endif %}
+							</h5>
+							<div>
+								{% if active_category %}
+									<span class="category-service-delete"
+										data-url="{% url 'service_system:category_service_delete' pk=active_category.id %}" style="color: red">Удалить категорию</span>
+								{% endif %}
+								&nbsp&nbsp
+								<button class="service-create btn btn-col btn-sm">+ Добавить услугу</button>
+							</div>
+						</div>
+						<div class="list-content">
+							<ul id="service-list-content" class="list-nav">
+								{% include "new/service_system/service/list.html" %}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="service-form-content" class="col-lg-8 col-md-8 right-block d-none" >
+				</div>
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block modal %}
+	<div class="modal" id="universalModal">
+		<div class="modal-dialog">
+			<div id="universalModal-content" class="modal-content">
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block domready %}
+	$(document).on("click", ".category-create", function() {
+		var url = "{% url 'service_system:category_service_create' %}"
+		$.ajax({
+			url: url,
+			type: 'GET',
+			success: function(data) {
+				$('#universalModal-content').html(data)
+				$('#universalModal').modal('show')
+			}
+		})
+	})
+
+	$(document).on("submit", "#category-create-form", function() {
+		event.preventDefault()
+		$.ajax({ 
+			data: $(this).serialize(),
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(data) {
+				$('#category-service-content').append(data)
+				$('#universalModal').modal('hide')
+			}
+		})
+	})
+
+	$(document).on("click", ".category-service-delete", function() {
+		var url = $(this).data('url')
+		var _this = $(this)
+		var is_confirm = confirm("Подтвердите удаления!")
+		if(is_confirm){
+			$.ajax({ 
+				type: 'POST',
+				url: url,
+				success: function(data) {
+					if(data.status){
+						location.href = "{% url 'service_system:service_in_category' %}"
+					}
+				}
+			})
+		}
+	})
+
+	$(document).on("click", ".service-create", function() {
+		$.ajax({ 
+			type: 'GET',
+			url: "{% url 'service_system:service_create' %}",
+			success: function(data) {
+				$('#service-content').addClass('d-none')
+				$('#service-form-content').removeClass('d-none')
+				$('#service-form-content').html(data)
+			}
+		})
+	})
+
+	$(document).on("click", ".service-update", function() {
+		var pk = $(this).data('id')
+		var url = "{% url 'service_system:service_update' pk=0 %}".replace('0', pk)
+		$.ajax({ 
+			type: 'GET',
+			url: url,
+			success: function(data) {
+				$('#service-content').addClass('d-none')
+				$('#service-form-content').removeClass('d-none')
+				$('#service-form-content').html(data)
+			}
+		})
+	})
+
+	$(document).on("click", ".service-create-cancel", function() {
+		event.preventDefault()
+		$('#service-form-content').html('').addClass('d-none')
+		$('#service-content').removeClass('d-none')
+	})
+
+	$(document).on("submit", "#service-form", function() {
+		event.preventDefault()
+		$.ajax({ 
+			data: $(this).serialize(),
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(data) {
+				if(data.status){
+					location.reload()
+				}
+			}
+		})
+	})
+
+	$(document).on("click", ".service-delete", function() {
+		var url = $(this).data('url')
+		var _this = $(this)
+		var is_confirm = confirm("Подтвердите удаление!")
+		if(is_confirm){
+			$.ajax({ 
+				type: 'POST',
+				url: url,
+				success: function(data) {
+					if(data.status){
+						location.reload()
+					}
+				}
+			})
+		}
+	})    
+	{% endblock %}

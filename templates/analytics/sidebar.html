@@ -1,0 +1,44 @@
+{% load analytics_tags %}
+
+<div class="app-sidebar__inner">
+
+    <ul class="vertical-nav-menu metismenu">
+        <li class="mm-active">
+            <ul class="mm-collapse mm-show">
+                <li class="mm-collapse-title">Конверсия</li>
+                <li>
+                    <a href="{% url 'analytics:record' %}" class="{% set_data_by_compare request.resolver_match.view_name 'analytics:record' 'mm-active' %}">
+                        <i class="metismenu-icon"></i>Записи
+                    </a>
+                </li>
+                <li class="mm-collapse-title">Продажи</li>
+                <li>
+                    <a href="" class="">
+                        <i class="metismenu-icon"></i>Основные показатели
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'analytics:speciality' %}" class="{% set_data_by_compare request.resolver_match.view_name 'analytics:speciality' 'mm-active' %}">
+                        <i class="metismenu-icon"></i>По специальностям
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'analytics:doctor' %}" class="{% set_data_by_compare request.resolver_match.view_name 'analytics:doctor' 'mm-active' %}">
+                        <i class="metismenu-icon"></i>По врачам
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'analytics:customer' %}" class="{% set_data_by_compare request.resolver_match.view_name 'analytics:customer' 'mm-active' %}">
+                        <i class="metismenu-icon"></i>По пациентам
+                    </a>
+                </li>
+                <li class="mm-collapse-title">Другие показатели</li>
+                <li>
+                    <a href="{% url 'analytics:visit' %}" class="{% set_data_by_compare request.resolver_match.view_name 'analytics:visit' 'mm-active' %}">
+                        <i class="metismenu-icon"></i>Визиты
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>

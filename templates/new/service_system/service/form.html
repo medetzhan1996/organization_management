@@ -1,0 +1,13 @@
+{% load widget_tweaks %}
+<b>Название</b> <br>
+{{ form.title|add_class:"form-control" }} <br>
+<b>Стоимость</b> <br>
+{{ form.price|add_class:"form-control" }} <br>
+<b>Категория</b> <br>
+{{ form.category|add_class:"form-control" }} <br>
+<b>Продолжительность</b> <br>
+{{ form.duration|add_class:"form-control" }} <br>
+<b>Технологическая карта</b> <br>
+{{ form.technological_cards }} <br>
+<b>Персонал, предоставляющий услугу:</b> <br>
+{{ form.users }} <br>

@@ -1,0 +1,6 @@
+<li class="d-flex align-items-center justify-content-between {% if active_technological_card == technological_card %} active  {% endif %}">
+    <a href="{% url 'technological_card:consumable_in_tech_card' technological_card=technological_card.pk %}">
+        <i class="fa fa-book ml-2 mr-2" aria-hidden="true"></i>
+        {{technological_card.title}}
+    </a>
+</li>

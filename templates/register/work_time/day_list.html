@@ -1,0 +1,25 @@
+{% load register_tags %}
+{% get_time_interval "08:00:00" "18:00:00" 20 as time_intervals %}
+{% for time in work_time %}
+	{% time_format time.start_time as start_time %}
+	{% time_format time.end_time as end_time %}
+	<div class="day-work-time-content">
+		<!--input type="time" name="" value="{{time.start_time|date:'H:i:s'}}"-->
+		<select name="start_time" class="btn btn-col btn-sm time-selectize start-time" data-id="{{time.id}}">
+			{% for value in time_intervals %}
+				{% time_format value as time_interval %}
+				<option value="{{time_interval}}" {% is_selected time_interval start_time %}>{{time_interval}}</option>
+			{% endfor %}
+		</select>
+		-
+		<select name="end_time" class="btn btn-col btn-sm time-selectize end-time" data-id="{{time.id}}">
+			{% for value in time_intervals %}
+				{% time_format value as time_interval %}
+				<option value="{{time_interval}}" {% is_selected time_interval end_time %}>{{time_interval}}</option>
+			{% endfor %}
+		</select>
+		<button data-id="{{time.id}}" class="btn btn-col btn-sm work-time-delete">-</button>
+	</div>
+{% empty %}
+	Недоступен
+{% endfor %}

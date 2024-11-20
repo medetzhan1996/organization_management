@@ -1,0 +1,10 @@
+{% for good in goods %}
+    <p>
+    	<li class="d-flex align-items-center justify-content-between border-top">
+    		<a href="#" class="color-455862 good-update" data-id="{{ good.id }}">
+    			<i class="fa fa-folder-o mr-2" aria-hidden="true"></i>
+    			{{good.title}}
+    		</a>
+	    </li>
+    </p>
+{% endfor %}

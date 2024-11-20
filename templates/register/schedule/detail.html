@@ -1,0 +1,70 @@
+{% load widget_tweaks %}
+{% load register_tags %}
+<div class="modal-header">
+  <h5 class="modal-title" id="exampleModalLabel"><!-- Добавить прием -->Детали приема </h5>
+  <div>
+    <a href="#" id="edit-schedule" data-id="{{ schedule.id }}" class="btn btn-purple btn-form no-wrap ml-2">
+      <i class="fa fa-pencil white" aria-hidden="true"></i>
+    </a>
+    <a href="#" id="delete-schedule" data-id="{{ schedule.id }}" class="btn btn-danger btn-form no-wrap ml-2">
+      <i class="fa fa-trash white" aria-hidden="true"></i>
+    </a>
+    <!--button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button-->
+  </div>
+</div>
+<div class="modal-body p-0">
+  <!-- <div class="tab-content" id="scheduleTabContent">
+      <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+        <div class="filter-group-grafic align-items-center mt-1">
+          <div class="align-items">
+            <h5>{{ schedule.customer.name }}</h5>
+          </div>
+          <div class="align-items">
+            <select id="id_status" class="ml-2 form-control" name="status" style="float: right;" data-schedule="{{ schedule.id }}">
+              {% for status in statuses %}
+                <option value="{{ status.id }}" {% is_selected status.id schedule.status.id %}>{{ status.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="table-responsive mt-2"> 
+
+          <div class="d-flex py-2 align-items-center">
+            <div class="mb-0 tx-13 w-50">
+              <b>Услуга</b>
+            </div>
+            <div class="w-40">
+              <p class="mb-1 mb-0 tx-13">{{ schedule.service.title }}</p>
+            </div>
+          </div>
+          <div class="d-flex py-2 align-items-center">
+            <div class="mb-0 tx-13 w-50">
+              <b>Дата</b>
+            </div>
+            <div class="w-40">
+              <p class="mb-1 mb-0 tx-13">{{ schedule.start_datetime|date:'d.m.Y' }}</p>
+            </div>
+          </div>
+
+           <div class="d-flex py-2 align-items-center">
+            <div class="mb-0 tx-13 w-50">
+              <b>Время</b>
+            </div>
+            <div class="w-40">
+              <p class="mb-1 mb-0 tx-13">
+                {{ schedule.start_datetime|date:'H:i' }} -
+                {{ schedule.end_datetime|date:'H:i' }} 
+                ({{ schedule.get_duration_time }} мин)
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+  </div> -->
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-sm btn-info btn-form " data-dismiss="modal">Закрыть</button>
+</div>
